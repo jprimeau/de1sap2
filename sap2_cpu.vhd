@@ -21,44 +21,42 @@ architecture microcoded of sap2_cpu is
 
     signal clk  : std_logic;
 
-    type t_rom is array (0 to 127) of t_data;
-    type t_ram is array (0 to 127) of t_data;
+    type t_ram is array (0 to 255) of t_data;
 
-    signal rom : t_rom := (
-        x"C3",x"28",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
+    signal ram : t_ram := (
+        x"C3",x"40",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
         x"3A",x"7F",x"06",x"02",x"80",x"D3",x"00",x"00", -- 08H
         x"3A",x"7E",x"0E",x"04",x"81",x"D3",x"00",x"00", -- 10H
         x"3E",x"FF",x"06",x"0F",x"0E",x"0A",x"A0",x"D3", -- 18H
         x"A1",x"D3",x"E6",x"02",x"D3",x"76",x"FF",x"FF", -- 20H
         x"3E",x"AB",x"32",x"FF",x"3E",x"00",x"3A",x"FF", -- 28H
         x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 30H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 38H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 40H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 48H
+        x"3E",x"01",x"17",x"D3",x"1F",x"D3",x"76",x"FF", -- 38H
+        x"3E",x"FF",x"FA",x"48",x"3E",x"0A",x"D3",x"76", -- 40H
+        x"3E",x"0B",x"D3",x"76",x"FF",x"FF",x"FF",x"FF", -- 48H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 50H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 58H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 60H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 70H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"02",x"01"  -- 78H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 80H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 90H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A0H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A8H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B0H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B8H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C0H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C8H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D0H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D8H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E0H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E8H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- F0H
---        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"03",x"01"  -- F8H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"02",x"01", -- 78H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 80H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 90H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A0H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A8H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B0H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B8H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C0H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C8H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D0H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D8H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E0H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E8H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- F0H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"03",x"01"  -- F8H
     );
-    signal ram : t_ram;
 
     signal ns, ps   : t_cpu_state;
 
@@ -81,6 +79,9 @@ architecture microcoded of sap2_cpu is
     signal alu_result   : t_data;
 
     signal con      : std_logic_vector(20 downto 0) := (others => '0');
+    
+    signal flag_z   : std_logic;
+    signal flag_s   : std_logic;
     
 begin
 
@@ -135,17 +136,13 @@ begin
     memory:
     process (clk)
     begin
+        if clk'event and clk = '0' and con(Mw) = '1' then
+            ram(conv_integer(MAR_reg)) <= w_bus;
+        end if;
         if con(Emdr) = '1' then
-            if MAR_reg(7) = '0' then
-                w_bus <= rom(conv_integer(MAR_reg(6 downto 0)));
-            else
-                w_bus <= ram(conv_integer(MAR_reg(6 downto 0)));
-            end if;
+            w_bus <= ram(conv_integer(MAR_reg));
         else
             w_bus <= (others => 'Z');
-        end if;
-        if con(Mw) = '1' and MAR_reg(7) = '1' then
-            ram(conv_integer(MAR_reg(6 downto 0))) <= w_bus;
         end if;
     end process memory;
     
@@ -280,6 +277,23 @@ begin
         cout        => open
     );
     
+    flags:
+    process (clk)
+    begin
+        if clk'event and clk = '1' then
+            if ACC_reg(7) = '1' then
+                flag_s <= '1';
+            else
+                flag_s <= '0';
+            end if;
+            if ACC_reg = "0" then
+                flag_z <= '1';
+            else
+                flag_z <= '0';
+            end if;
+        end if;
+    end process flags;
+    
     cpu_state_machine_reg:
     process (clk)
     begin
@@ -335,8 +349,14 @@ begin
                 ns <= inrb_0;
             when INRC =>
                 ns <= inrc_0;
+            when JM =>
+                ns <= jm_0;
             when JMP =>
                 ns <= jmp_0;
+            when JNZ =>
+                ns <= jnz_0;
+            when JZ =>
+                ns <= jz_0;
             when LDA =>
                 ns <= lda_0;
             when MOVAB =>
@@ -367,6 +387,10 @@ begin
                 ns <= ori_0;
             when OUTB =>
                 ns <= out_0;
+            when RAL =>
+                ns <= ral_0;
+            when RAR =>
+                ns <= rar_0;
             when STA =>
                 ns <= sta_0;
             when SUBB =>
@@ -515,6 +539,21 @@ begin
             con(Lc) <= '1';
             ns <= fetch_address;
             
+        -- ***** JM address
+        when jm_0 =>
+            con(Ep) <= '1';
+            con(Lmar) <= '1';
+            ns <= jm_1;
+        when jm_1 =>
+            con(Cp) <= '1';
+            ns <= jm_2;
+        when jm_2 =>
+            if flag_s = '1' then
+                con(Emdr) <= '1';
+                con(Lp) <= '1';
+            end if;
+            ns <= fetch_address;
+            
         -- ***** JMP address
         when jmp_0 =>
             con(Ep) <= '1';
@@ -526,6 +565,36 @@ begin
         when jmp_2 =>
             con(Emdr) <= '1';
             con(Lp) <= '1';
+            ns <= fetch_address;
+            
+        -- ***** JNZ address
+        when jnz_0 =>
+            con(Ep) <= '1';
+            con(Lmar) <= '1';
+            ns <= jnz_1;
+        when jnz_1 =>
+            con(Cp) <= '1';
+            ns <= jnz_2;
+        when jnz_2 =>
+            if flag_z = '1' then
+                con(Emdr) <= '1';
+                con(Lp) <= '1';
+            end if;
+            ns <= fetch_address;
+            
+        -- ***** JZ address
+        when jz_0 =>
+            con(Ep) <= '1';
+            con(Lmar) <= '1';
+            ns <= jz_1;
+        when jz_1 =>
+            con(Cp) <= '1';
+            ns <= jz_2;
+        when jz_2 =>
+            if flag_z = '0' then
+                con(Emdr) <= '1';
+                con(Lp) <= '1';
+            end if;
             ns <= fetch_address;
 	
         -- ***** LDA address
@@ -656,6 +725,20 @@ begin
         when out_0 =>
             con(Ea) <= '1';
             con(Lo) <= '1';
+            ns <= fetch_address;
+        
+        -- ***** RAL
+        when ral_0 =>
+            alu_code <= ALU_AROL;
+            con(Eu) <= '1';
+            con(La) <= '1';
+            ns <= fetch_address;
+        
+        -- ***** RAR
+        when rar_0 =>
+            alu_code <= ALU_AROR;
+            con(Eu) <= '1';
+            con(La) <= '1';
             ns <= fetch_address;
             
         -- ***** STA address

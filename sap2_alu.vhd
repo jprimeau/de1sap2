@@ -3,6 +3,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 use work.sap2_pkg.all;
 
@@ -12,15 +13,16 @@ entity sap2_alu is
         b           : in t_data;
         cin         : in std_logic;
         code        : in std_logic_vector(3 downto 0);
+        
         result      : out t_data;
         cout        : out std_logic
     );
 end sap2_alu;
 
 architecture ALU74181 of sap2_alu is
-    signal tmp_a    : t_data;
-    signal tmp_b    : t_data;
-    signal tmp_cin  : std_logic;
+    signal tmp_a        : t_data;
+    signal tmp_b        : t_data;
+    signal tmp_cin      : std_logic;
 
     procedure full_adder(
         signal a    : in t_data;
@@ -61,16 +63,14 @@ begin
             result <= not b;
         when ALU_AANDB =>
             result <= a and b;
---        when ALU_ANANDB =>
---            result <= not(a and b);
         when ALU_AORB =>
             result <= a or b;
---        when ALU_ANORB =>
---            result <= not(a or b);
         when ALU_AXORB =>
             result <= a xor b;
---        when ALU_AXNORB =>
---            result <= not (a xor b);
+        when ALU_AROL =>
+            result <= to_stdlogicvector(to_bitvector(a) rol 1);
+        when ALU_AROR =>
+            result <= to_stdlogicvector(to_bitvector(a) ror 1);
 
         -- Arithmetic operations
         when ALU_INCA =>
@@ -102,11 +102,6 @@ begin
             tmp_a <= a;
             tmp_b <= not b;
             tmp_cin <= '1';
-            full_adder(tmp_a, tmp_b, tmp_cin, result, cout);
-        when ALU_LEFTSHIFTA =>
-            tmp_a <= a;
-            tmp_b <= a;
-            tmp_cin <= '0';
             full_adder(tmp_a, tmp_b, tmp_cin, result, cout);
             
         when others => null;

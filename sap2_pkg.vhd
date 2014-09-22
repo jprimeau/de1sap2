@@ -121,9 +121,21 @@ package sap2_pkg is
         inrc_0,
         inrc_1,
         
+        jm_0,
+        jm_1,
+        jm_2,
+        
         jmp_0,
         jmp_1,
         jmp_2,
+        
+        jnz_0,
+        jnz_1,
+        jnz_2,
+        
+        jz_0,
+        jz_1,
+        jz_2,
         
         lda_0,
         lda_1,
@@ -161,6 +173,9 @@ package sap2_pkg is
         
         out_0,
         
+        ral_0,
+        rar_0,
+        
         sta_0,
         sta_1,
         sta_2,
@@ -185,17 +200,15 @@ package sap2_pkg is
     constant ALU_NOTA       : t_alucode := x"0";
     constant ALU_NOTB       : t_alucode := x"1";
     constant ALU_AANDB      : t_alucode := x"2";
-    constant ALU_ANANDB     : t_alucode := x"3";
-    constant ALU_AORB       : t_alucode := x"4";
-    constant ALU_ANORB      : t_alucode := x"5";
-    constant ALU_AXORB      : t_alucode := x"6";
-    constant ALU_AXNORB     : t_alucode := x"7";
-    constant ALU_INCA       : t_alucode := x"8";
-    constant ALU_INCB       : t_alucode := x"9";
-    constant ALU_DECA       : t_alucode := x"A";
-    constant ALU_DECB       : t_alucode := x"B";
-    constant ALU_APLUSB     : t_alucode := x"C";
-    constant ALU_AMINUSB    : t_alucode := x"D";
-    constant ALU_LEFTSHIFTA : t_alucode := x"E";
+    constant ALU_AORB       : t_alucode := x"3";
+    constant ALU_AXORB      : t_alucode := x"4";
+    constant ALU_AROL       : t_alucode := x"5";
+    constant ALU_AROR       : t_alucode := x"6";
+    constant ALU_INCA       : t_alucode := x"7";
+    constant ALU_INCB       : t_alucode := x"8";
+    constant ALU_DECA       : t_alucode := x"9";
+    constant ALU_DECB       : t_alucode := x"A";
+    constant ALU_APLUSB     : t_alucode := x"B";
+    constant ALU_AMINUSB    : t_alucode := x"C";
 
 end package sap2_pkg;
