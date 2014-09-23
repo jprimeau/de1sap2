@@ -1,6 +1,15 @@
 -- DESCRIPTION: SAP-2 - CPU
 -- AUTHOR: Jonathan Primeau
 
+-- TODO:
+--  o Implement MDR
+--  o Implement IN byte
+--  o Implement PS/2 interface
+--  o Fix OUT byte (output selection)
+--  o Use external SRAM
+--  o Use 16-bit address
+--  o Implement serial interface
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
@@ -24,7 +33,7 @@ architecture microcoded of sap2_cpu is
     type t_ram is array (0 to 255) of t_data;
 
     signal ram : t_ram := (
-        x"C3",x"50",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
+        x"C3",x"60",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
         x"3A",x"FF",x"06",x"02",x"80",x"D3",x"00",x"00", -- 08H
         x"3A",x"FE",x"0E",x"04",x"81",x"D3",x"00",x"00", -- 10H
         x"3E",x"FF",x"06",x"0F",x"0E",x"0A",x"A0",x"D3", -- 18H
@@ -36,8 +45,8 @@ architecture microcoded of sap2_cpu is
         x"3E",x"0B",x"D3",x"76",x"FF",x"FF",x"FF",x"FF", -- 48H
         x"CD",x"58",x"3E",x"AB",x"D3",x"76",x"FF",x"FF", -- 50H
         x"3A",x"FF",x"D3",x"C9",x"76",x"FF",x"FF",x"FF", -- 58H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 60H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
+        x"3E",x"0A",x"D3",x"3D",x"C2",x"62",x"3E",x"FF", -- 60H
+        x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 70H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"02",x"01", -- 78H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 80H
@@ -610,7 +619,7 @@ begin
             con(Cp) <= '1';
             ns <= jnz_2;
         when jnz_2 =>
-            if flag_z = '1' then
+            if flag_z = '0' then
                 con(Emdr) <= '1';
                 con(Lp) <= '1';
             end if;
@@ -625,7 +634,7 @@ begin
             con(Cp) <= '1';
             ns <= jz_2;
         when jz_2 =>
-            if flag_z = '0' then
+            if flag_z = '1' then
                 con(Emdr) <= '1';
                 con(Lp) <= '1';
             end if;
