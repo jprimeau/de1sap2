@@ -24,9 +24,9 @@ architecture microcoded of sap2_cpu is
     type t_ram is array (0 to 255) of t_data;
 
     signal ram : t_ram := (
-        x"C3",x"40",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
-        x"3A",x"7F",x"06",x"02",x"80",x"D3",x"00",x"00", -- 08H
-        x"3A",x"7E",x"0E",x"04",x"81",x"D3",x"00",x"00", -- 10H
+        x"C3",x"50",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
+        x"3A",x"FF",x"06",x"02",x"80",x"D3",x"00",x"00", -- 08H
+        x"3A",x"FE",x"0E",x"04",x"81",x"D3",x"00",x"00", -- 10H
         x"3E",x"FF",x"06",x"0F",x"0E",x"0A",x"A0",x"D3", -- 18H
         x"A1",x"D3",x"E6",x"02",x"D3",x"76",x"FF",x"FF", -- 20H
         x"3E",x"AB",x"32",x"FF",x"3E",x"00",x"3A",x"FF", -- 28H
@@ -34,8 +34,8 @@ architecture microcoded of sap2_cpu is
         x"3E",x"01",x"17",x"D3",x"1F",x"D3",x"76",x"FF", -- 38H
         x"3E",x"FF",x"FA",x"48",x"3E",x"0A",x"D3",x"76", -- 40H
         x"3E",x"0B",x"D3",x"76",x"FF",x"FF",x"FF",x"FF", -- 48H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 50H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 58H
+        x"CD",x"58",x"3E",x"AB",x"D3",x"76",x"FF",x"FF", -- 50H
+        x"3A",x"FF",x"D3",x"76",x"FF",x"FF",x"FF",x"FF", -- 58H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 60H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 70H
@@ -333,6 +333,8 @@ begin
                 ns <= anac_0;
             when ANI =>
                 ns <= ani_0;
+            when CALL =>
+                ns <= call_0;
             when CMA =>
                 ns <= cma_0;
             when DCRA =>
@@ -460,6 +462,44 @@ begin
             con(Eu) <= '1';
             con(La) <= '1';
             ns <= fetch_address;
+            
+        -- ***** CALL address
+        when call_0 =>
+            con(Ep) <= '1';
+            con(Lmar) <= '1';
+            ns <= call_0w;
+        when call_0w =>
+            ns <= call_1; -- SLEEP
+        when call_1 =>
+            con(Cp) <= '1';
+            ns <= call_1w;
+        when call_1w =>
+            ns <= call_2; -- SLEEP
+        when call_2 =>
+            con(Ep) <= '1';
+            con(Lt) <= '1';
+            ns <= call_2w;
+        when call_2w =>
+            ns <= call_3; -- SLEEP
+        when call_3 =>
+            con(Emdr) <= '1';
+            con(Lp) <= '1';
+            ns <= call_3w;
+        when call_3w =>
+            ns <= call_4; -- SLEEP
+        when call_4 =>
+            alu_code <= ALU_ONES;
+            con(Eu) <= '1';
+            con(Lmar) <= '1';
+            ns <= call_4w;
+        when call_4w =>
+            ns <= call_5; -- SLEEP
+        when call_5 =>
+            con(Et) <= '1';
+            con(Mw) <= '1';
+            ns <= call_5w;
+        when call_5w =>
+            ns <= fetch_address; -- SLEEP
             
         -- ***** CMA
         when cma_0 =>
@@ -729,14 +769,14 @@ begin
         
         -- ***** RAL
         when ral_0 =>
-            alu_code <= ALU_AROL;
+            alu_code <= ALU_ROLA;
             con(Eu) <= '1';
             con(La) <= '1';
             ns <= fetch_address;
         
         -- ***** RAR
         when rar_0 =>
-            alu_code <= ALU_AROR;
+            alu_code <= ALU_RORA;
             con(Eu) <= '1';
             con(La) <= '1';
             ns <= fetch_address;

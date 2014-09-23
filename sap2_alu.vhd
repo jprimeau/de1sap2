@@ -67,10 +67,13 @@ begin
             result <= a or b;
         when ALU_AXORB =>
             result <= a xor b;
-        when ALU_AROL =>
+        when ALU_ROLA =>
             result <= to_stdlogicvector(to_bitvector(a) rol 1);
-        when ALU_AROR =>
+        when ALU_RORA =>
             result <= to_stdlogicvector(to_bitvector(a) ror 1);
+            
+        when ALU_ONES =>
+            result <= (others => '1');
 
         -- Arithmetic operations
         when ALU_INCA =>
