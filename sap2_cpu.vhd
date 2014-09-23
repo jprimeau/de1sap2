@@ -89,7 +89,7 @@ begin
     p0_out <= O_reg;
     
     run:
-    process (clock)
+    process (clock, reset, con)
     begin
         if reset = '1' then
             clk <= '0';
@@ -103,7 +103,7 @@ begin
     end process run;
 
     program_counter:
-    process (clk)
+    process (clk, reset, con)
     begin
         if reset = '1' then
             PC_reg <= (others => '0');
@@ -122,11 +122,11 @@ begin
     end process program_counter;
     
     MAR_register:
-    process (clk)
+    process (clk, reset)
     begin
         if reset = '1' then
             MAR_reg <= (others => '0');
-        elsif clk'event and clk = '0' then
+        elsif clk'event and clk = '1' then
             if con(Lmar) = '1' then
                 MAR_reg <= w_bus;
             end if;
@@ -134,10 +134,12 @@ begin
     end process MAR_register;
     
     memory:
-    process (clk)
+    process (clk, con)
     begin
-        if clk'event and clk = '0' and con(Mw) = '1' then
-            ram(conv_integer(MAR_reg)) <= w_bus;
+        if clk'event and clk = '0' then
+            if con(Mw) = '1' then
+                ram(conv_integer(MAR_reg)) <= w_bus;
+            end if;
         end if;
         if con(Emdr) = '1' then
             w_bus <= ram(conv_integer(MAR_reg));
@@ -159,7 +161,7 @@ begin
 --    end process MDR_register;
     
     ACC_register:
-    process (clk)
+    process (clk, reset, con)
     begin
         if reset = '1' then
             ACC_reg <= (others => '0');
@@ -176,7 +178,7 @@ begin
     end process ACC_register;
     
     TMP_register:
-    process (clk)
+    process (clk, reset, con)
     begin
         if reset = '1' then
             TMP_reg <= (others => '0');
@@ -193,7 +195,7 @@ begin
     end process TMP_register;
     
     B_register:
-    process (clk)
+    process (clk, reset, con)
     begin
         if reset = '1' then
             B_reg <= (others => '0');
@@ -210,7 +212,7 @@ begin
     end process B_register;
     
     C_register:
-    process (clk)
+    process (clk, reset, con)
     begin
         if reset = '1' then
             C_reg <= (others => '0');
@@ -227,7 +229,7 @@ begin
     end process C_register;
     
     I_register:
-    process (clk)
+    process (clk, reset, con)
     begin
         if reset = '1' then
             I_reg <= (others => '0');
@@ -246,7 +248,7 @@ begin
     op_code <= I_reg;
 
     O_register:
-    process (clk)
+    process (clk, reset)
     begin
         if reset = '1' then
             O_reg <= (others => '0');
@@ -258,7 +260,7 @@ begin
     end process O_register;
 
     arithmetic_logic_unit:
-    process (clk)
+    process (clk, con)
     begin
         if con(Eu) = '1' then
             w_bus <= alu_result;
