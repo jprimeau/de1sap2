@@ -35,7 +35,7 @@ architecture microcoded of sap2_cpu is
         x"3E",x"FF",x"FA",x"48",x"3E",x"0A",x"D3",x"76", -- 40H
         x"3E",x"0B",x"D3",x"76",x"FF",x"FF",x"FF",x"FF", -- 48H
         x"CD",x"58",x"3E",x"AB",x"D3",x"76",x"FF",x"FF", -- 50H
-        x"3A",x"FF",x"D3",x"76",x"FF",x"FF",x"FF",x"FF", -- 58H
+        x"3A",x"FF",x"D3",x"C9",x"76",x"FF",x"FF",x"FF", -- 58H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 60H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 70H
@@ -395,6 +395,8 @@ begin
                 ns <= ral_0;
             when RAR =>
                 ns <= rar_0;
+            when RET =>
+                ns <= ret_0;
             when STA =>
                 ns <= sta_0;
             when SUBB =>
@@ -469,39 +471,29 @@ begin
         when call_0 =>
             con(Ep) <= '1';
             con(Lmar) <= '1';
-            ns <= call_0w;
-        when call_0w =>
-            ns <= call_1; -- SLEEP
+            ns <= call_1;
         when call_1 =>
             con(Cp) <= '1';
-            ns <= call_1w;
-        when call_1w =>
-            ns <= call_2; -- SLEEP
+            ns <= call_2;
         when call_2 =>
             con(Ep) <= '1';
             con(Lt) <= '1';
-            ns <= call_2w;
-        when call_2w =>
-            ns <= call_3; -- SLEEP
+            ns <= call_3;
         when call_3 =>
             con(Emdr) <= '1';
             con(Lp) <= '1';
-            ns <= call_3w;
-        when call_3w =>
-            ns <= call_4; -- SLEEP
+            ns <= call_4;
         when call_4 =>
             alu_code <= ALU_ONES;
             con(Eu) <= '1';
             con(Lmar) <= '1';
-            ns <= call_4w;
-        when call_4w =>
-            ns <= call_5; -- SLEEP
+            ns <= call_5;
         when call_5 =>
+            ns <= call_6; -- SLEEP
+        when call_6 =>
             con(Et) <= '1';
             con(Mw) <= '1';
-            ns <= call_5w;
-        when call_5w =>
-            ns <= fetch_address; -- SLEEP
+            ns <= fetch_address;
             
         -- ***** CMA
         when cma_0 =>
@@ -781,6 +773,17 @@ begin
             alu_code <= ALU_RORA;
             con(Eu) <= '1';
             con(La) <= '1';
+            ns <= fetch_address;
+            
+        -- ***** RET
+        when ret_0 =>
+            alu_code <= ALU_ONES;
+            con(Eu) <= '1';
+            con(Lmar) <= '1';
+            ns <= ret_1;
+        when ret_1 =>
+            con(Emdr) <= '1';
+            con(Lp) <= '1';
             ns <= fetch_address;
             
         -- ***** STA address

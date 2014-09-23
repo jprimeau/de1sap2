@@ -105,13 +105,7 @@ package sap2_pkg is
         call_3,
         call_4,
         call_5,
-        
-        call_0w,
-        call_1w,
-        call_2w,
-        call_3w,
-        call_4w,
-        call_5w,
+        call_6,
         
         cma_0,
         
@@ -189,6 +183,9 @@ package sap2_pkg is
         
         ral_0,
         rar_0,
+        
+        ret_0,
+        ret_1,
         
         sta_0,
         sta_1,
