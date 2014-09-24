@@ -59,8 +59,6 @@ begin
         -- Logic operations
         when ALU_NOTA =>
             result <= not a;
-        when ALU_NOTB =>
-            result <= not b;
         when ALU_AANDB =>
             result <= a and b;
         when ALU_AORB =>
@@ -81,19 +79,9 @@ begin
             tmp_b <= (others=>'0');
             tmp_cin <= '1';
             full_adder(tmp_a, tmp_b, tmp_cin, result, cout);
-        when ALU_INCB =>
-            tmp_a <= (others=>'0');
-            tmp_b <= b;
-            tmp_cin <= '1';
-            full_adder(tmp_a, tmp_b, tmp_cin, result, cout);
         when ALU_DECA =>
             tmp_a <= a;
             tmp_b <= (others=>'1');
-            tmp_cin <= '0';
-            full_adder(tmp_a, tmp_b, tmp_cin, result, cout);
-        when ALU_DECB =>
-            tmp_a <= (others=>'1');
-            tmp_b <= b;
             tmp_cin <= '0';
             full_adder(tmp_a, tmp_b, tmp_cin, result, cout);
         when ALU_APLUSB =>

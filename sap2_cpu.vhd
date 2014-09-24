@@ -2,9 +2,6 @@
 -- AUTHOR: Jonathan Primeau
 
 -- TODO:
---  o Introduce the Lf signal
---  o Limit instructions affecting flags (ADD, SUB, INR, DCR, ANA, ORA, XRA, ANI, ORI, XRI)
---  o Make the above instructions use the accumulator for calculation
 --  o Implement MDR
 --  o Implement IN byte
 --  o Implement PS/2 interface
@@ -36,7 +33,7 @@ architecture microcoded of sap2_cpu is
     type t_ram is array (0 to 255) of t_data;
 
     signal ram : t_ram := (
-        x"C3",x"60",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
+        x"C3",x"80",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
         x"3A",x"FF",x"06",x"02",x"80",x"D3",x"00",x"00", -- 08H
         x"3A",x"FE",x"0E",x"04",x"81",x"D3",x"00",x"00", -- 10H
         x"3E",x"FF",x"06",x"0F",x"0E",x"0A",x"A0",x"D3", -- 18H
@@ -50,10 +47,10 @@ architecture microcoded of sap2_cpu is
         x"3A",x"FF",x"D3",x"C9",x"76",x"FF",x"FF",x"FF", -- 58H
         x"3E",x"0A",x"D3",x"3D",x"C2",x"62",x"3E",x"FF", -- 60H
         x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 70H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"02",x"01", -- 78H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 80H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
+        x"0E",x"0A",x"4F",x"D3",x"0D",x"4F",x"D3",x"76", -- 70H
+        x"3E",x"0A",x"D3",x"3D",x"D3",x"76",x"FF",x"FF", -- 78H
+        x"3E",x"00",x"06",x"10",x"0E",x"04",x"CD",x"F0", -- 80H
+        x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 90H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A0H
@@ -66,7 +63,7 @@ architecture microcoded of sap2_cpu is
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D8H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E0H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- F0H
+        x"80",x"0D",x"D3",x"C2",x"F0",x"C9",x"FF",x"FF", -- F0H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"03",x"01"  -- F8H
     );
 
@@ -294,7 +291,7 @@ begin
     flags:
     process (clk, con)
     begin
-        if clk'event and clk = '1' then
+        if clk'event and clk = '0' then
             if con(Sf) = '1' then
                 if ACC_reg(7) = '1' then
                     flag_s <= '1';
@@ -506,7 +503,7 @@ begin
             con(Lmar) <= '1';
             ns <= call_5;
         when call_5 =>
-            ns <= call_6; -- SLEEP
+            ns <= call_6; -- Sleep 1 cycle
         when call_6 =>
             con(Et) <= '1';
             con(Mw) <= '1';
@@ -521,11 +518,7 @@ begin
             
         -- ***** DCR A
         when dcra_0 =>
-            con(Ea) <= '1';
-            con(Lt) <= '1';
-            ns <= dcra_1;
-        when dcra_1 =>
-            alu_code <= ALU_DECB;
+            alu_code <= ALU_DECA;
             con(Eu) <= '1';
             con(La) <= '1';
             con(Sf) <= '1';
@@ -533,26 +526,46 @@ begin
             
         -- ***** DCR B
         when dcrb_0 =>
-            con(Eb) <= '1';
+            con(Ea) <= '1';
             con(Lt) <= '1';
             ns <= dcrb_1;
         when dcrb_1 =>
-            alu_code <= ALU_DECB;
+            con(Eb) <= '1';
+            con(La) <= '1';
+            ns <= dcrb_2;
+        when dcrb_2 =>
+            alu_code <= ALU_DECA;
             con(Eu) <= '1';
+            con(La) <= '1';
             con(Lb) <= '1';
             con(Sf) <= '1';
+            ns <= dcrb_3;
+        when dcrb_3 =>
+            con(Et) <= '1';
+            con(La) <= '1';
             ns <= address_state;
             
         -- ***** DCR C
         when dcrc_0 =>
-            con(Ec) <= '1';
+            con(Ea) <= '1';
             con(Lt) <= '1';
             ns <= dcrc_1;
         when dcrc_1 =>
-            alu_code <= ALU_DECB;
+            con(Ec) <= '1';
+            con(La) <= '1';
+            ns <= dcrc_2;
+        when dcrc_2 =>
+            alu_code <= ALU_DECA;
             con(Eu) <= '1';
             con(Lc) <= '1';
+            con(La) <= '1';
             con(Sf) <= '1';
+            ns <= dcrc_3;
+        when dcrc_3 =>
+            ns <= dcrc_4;
+        when dcrc_4 =>
+            con(Et) <= '1';
+            con(La) <= '1';
             ns <= address_state;
             
         -- ***** HLT
@@ -562,11 +575,7 @@ begin
             
         -- ***** INR A
         when inra_0 =>
-            con(Ea) <= '1';
-            con(Lt) <= '1';
-            ns <= inra_1;
-        when inra_1 =>
-            alu_code <= ALU_INCB;
+            alu_code <= ALU_INCA;
             con(Eu) <= '1';
             con(La) <= '1';
             con(Sf) <= '1';
@@ -575,24 +584,26 @@ begin
         -- ***** INR B
         when inrb_0 =>
             con(Eb) <= '1';
-            con(Lt) <= '1';
+            con(La) <= '1';
             ns <= inrb_1;
         when inrb_1 =>
-            alu_code <= ALU_INCB;
+            alu_code <= ALU_INCA;
             con(Eu) <= '1';
             con(Lb) <= '1';
+            con(La) <= '1';
             con(Sf) <= '1';
             ns <= address_state;
             
         -- ***** INR C
         when inrc_0 =>
             con(Ec) <= '1';
-            con(Lt) <= '1';
+            con(La) <= '1';
             ns <= inrc_1;
         when inrc_1 =>
-            alu_code <= ALU_INCB;
+            alu_code <= ALU_INCA;
             con(Eu) <= '1';
             con(Lc) <= '1';
+            con(La) <= '1';
             con(Sf) <= '1';
             ns <= address_state;
             
@@ -807,7 +818,7 @@ begin
             con(Lmar) <= '1';
             ns <= ret_1;
         when ret_1 =>
-            ns <= ret_2; -- SLEEP
+            ns <= ret_2; -- Sleep 1 cycle
         when ret_2 =>
             con(Emdr) <= '1';
             con(Lp) <= '1';

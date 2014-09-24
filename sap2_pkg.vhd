@@ -111,18 +111,21 @@ package sap2_pkg is
         cma_0,
         
         dcra_0,
-        dcra_1,
         
         dcrb_0,
         dcrb_1,
+        dcrb_2,
+        dcrb_3,
         
         dcrc_0,
         dcrc_1,
+        dcrc_2,
+        dcrc_3,
+        dcrc_4,
         
         hlt_0,
         
         inra_0,
-        inra_1,
         
         inrb_0,
         inrb_1,
@@ -211,18 +214,15 @@ package sap2_pkg is
     subtype t_alucode is std_logic_vector(3 downto 0);
     
     constant ALU_NOTA       : t_alucode := x"0";
-    constant ALU_NOTB       : t_alucode := x"1";
-    constant ALU_AANDB      : t_alucode := x"2";
-    constant ALU_AORB       : t_alucode := x"3";
-    constant ALU_AXORB      : t_alucode := x"4";
-    constant ALU_ROLA       : t_alucode := x"5";
-    constant ALU_RORA       : t_alucode := x"6";
-    constant ALU_INCA       : t_alucode := x"7";
-    constant ALU_INCB       : t_alucode := x"8";
-    constant ALU_DECA       : t_alucode := x"9";
-    constant ALU_DECB       : t_alucode := x"A";
-    constant ALU_APLUSB     : t_alucode := x"B";
-    constant ALU_AMINUSB    : t_alucode := x"C";
-    constant ALU_ONES       : t_alucode := x"D";
+    constant ALU_AANDB      : t_alucode := x"1";
+    constant ALU_AORB       : t_alucode := x"2";
+    constant ALU_AXORB      : t_alucode := x"3";
+    constant ALU_ROLA       : t_alucode := x"4";
+    constant ALU_RORA       : t_alucode := x"5";
+    constant ALU_INCA       : t_alucode := x"6";
+    constant ALU_DECA       : t_alucode := x"7";
+    constant ALU_APLUSB     : t_alucode := x"8";
+    constant ALU_AMINUSB    : t_alucode := x"9";
+    constant ALU_ONES       : t_alucode := x"A";
 
 end package sap2_pkg;

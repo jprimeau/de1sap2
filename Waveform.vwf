@@ -1,3 +1,4 @@
+/* Simulator = Quartus II Simulator */
 /*
 WARNING: Do NOT edit the input and output ports in this file in a text
 editor if you plan to continue editing the block that represents it in
@@ -25,7 +26,7 @@ HEADER
 	VERSION = 1;
 	TIME_UNIT = ns;
 	DATA_OFFSET = 0.0;
-	DATA_DURATION = 4000.0;
+	DATA_DURATION = 10000.0;
 	SIMULATION_TIME = 0.0;
 	GRID_PHASE = 0.0;
 	GRID_PERIOD = 10.0;
@@ -158,7 +159,7 @@ TRANSITION_LIST("reset")
 	{
 		REPEAT = 1;
 		LEVEL 1 FOR 20.0;
-		LEVEL 0 FOR 3980.0;
+		LEVEL 0 FOR 9980.0;
 	}
 }
 
@@ -169,7 +170,7 @@ TRANSITION_LIST("clock")
 		REPEAT = 1;
 		NODE
 		{
-			REPEAT = 200;
+			REPEAT = 500;
 			LEVEL 0 FOR 10.0;
 			LEVEL 1 FOR 10.0;
 		}
@@ -182,7 +183,7 @@ TRANSITION_LIST("p0_out[7]")
 	{
 		REPEAT = 1;
 		LEVEL X FOR 999.0;
-		LEVEL 0 FOR 3001.0;
+		LEVEL 0 FOR 9001.0;
 	}
 }
 
@@ -192,7 +193,7 @@ TRANSITION_LIST("p0_out[6]")
 	{
 		REPEAT = 1;
 		LEVEL X FOR 999.0;
-		LEVEL 0 FOR 3001.0;
+		LEVEL 0 FOR 9001.0;
 	}
 }
 
@@ -202,7 +203,7 @@ TRANSITION_LIST("p0_out[5]")
 	{
 		REPEAT = 1;
 		LEVEL X FOR 999.0;
-		LEVEL 0 FOR 3001.0;
+		LEVEL 0 FOR 9001.0;
 	}
 }
 
@@ -212,7 +213,7 @@ TRANSITION_LIST("p0_out[4]")
 	{
 		REPEAT = 1;
 		LEVEL X FOR 999.0;
-		LEVEL 0 FOR 3001.0;
+		LEVEL 0 FOR 9001.0;
 	}
 }
 
@@ -222,7 +223,7 @@ TRANSITION_LIST("p0_out[3]")
 	{
 		REPEAT = 1;
 		LEVEL X FOR 999.0;
-		LEVEL 0 FOR 3001.0;
+		LEVEL 0 FOR 9001.0;
 	}
 }
 
@@ -232,7 +233,7 @@ TRANSITION_LIST("p0_out[2]")
 	{
 		REPEAT = 1;
 		LEVEL X FOR 999.0;
-		LEVEL 0 FOR 3001.0;
+		LEVEL 0 FOR 9001.0;
 	}
 }
 
@@ -242,7 +243,7 @@ TRANSITION_LIST("p0_out[1]")
 	{
 		REPEAT = 1;
 		LEVEL X FOR 999.0;
-		LEVEL 0 FOR 3001.0;
+		LEVEL 0 FOR 9001.0;
 	}
 }
 
@@ -252,7 +253,7 @@ TRANSITION_LIST("p0_out[0]")
 	{
 		REPEAT = 1;
 		LEVEL X FOR 999.0;
-		LEVEL 0 FOR 3001.0;
+		LEVEL 0 FOR 9001.0;
 	}
 }
 
@@ -262,7 +263,7 @@ TRANSITION_LIST("halt_out")
 	{
 		REPEAT = 1;
 		LEVEL X FOR 999.0;
-		LEVEL 0 FOR 3001.0;
+		LEVEL 0 FOR 9001.0;
 	}
 }
 
