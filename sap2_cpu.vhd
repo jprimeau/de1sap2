@@ -2,6 +2,9 @@
 -- AUTHOR: Jonathan Primeau
 
 -- TODO:
+--  o Introduce the Lf signal
+--  o Limit instructions affecting flags (ADD, SUB, INR, DCR, ANA, ORA, XRA, ANI, ORI, XRI)
+--  o Make the above instructions use the accumulator for calculation
 --  o Implement MDR
 --  o Implement IN byte
 --  o Implement PS/2 interface
@@ -87,7 +90,7 @@ architecture microcoded of sap2_cpu is
     
     signal alu_result   : t_data;
 
-    signal con      : std_logic_vector(20 downto 0) := (others => '0');
+    signal con      : std_logic_vector(21 downto 0) := (others => '0');
     
     signal flag_z   : std_logic;
     signal flag_s   : std_logic;
@@ -289,18 +292,20 @@ begin
     );
     
     flags:
-    process (clk)
+    process (clk, con)
     begin
         if clk'event and clk = '1' then
-            if ACC_reg(7) = '1' then
-                flag_s <= '1';
-            else
-                flag_s <= '0';
-            end if;
-            if ACC_reg = "0" then
-                flag_z <= '1';
-            else
-                flag_z <= '0';
+            if con(Sf) = '1' then
+                if ACC_reg(7) = '1' then
+                    flag_s <= '1';
+                else
+                    flag_s <= '0';
+                end if;
+                if ACC_reg = "0" then
+                    flag_z <= '1';
+                else
+                    flag_z <= '0';
+                end if;
             end if;
         end if;
     end process flags;
@@ -309,7 +314,7 @@ begin
     process (clk)
     begin
         if reset = '1' then
-            ps <= fetch_address;
+            ps <= address_state;
         elsif clk'event and clk='1' then
             ps <= ns;
         end if;
@@ -321,12 +326,12 @@ begin
         con <= (others => '0');
         case ps is
         
-		when fetch_address =>
+		when address_state =>
             con(Ep) <= '1';
             con(Lmar) <= '1';
-			ns <= increment_pc_load_instruction;
+			ns <= increment_and_memory_state;
             
-		when increment_pc_load_instruction =>
+		when increment_and_memory_state =>
             con(Cp) <= '1';
             con(Emdr) <= '1';
             con(Li) <= '1';
@@ -419,7 +424,7 @@ begin
             when XRI =>
                 ns <= xri_0;
             when others =>
-                ns <= fetch_address;
+                ns <= address_state;
             end case;
             
         -- ***** ADD B
@@ -438,7 +443,8 @@ begin
             alu_code <= ALU_APLUSB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** ANA B
         when anab_0 =>
@@ -456,7 +462,8 @@ begin
             alu_code <= ALU_AANDB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** ANI byte
         when ani_0 =>
@@ -474,7 +481,8 @@ begin
             alu_code <= ALU_AANDB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** CALL address
         when call_0 =>
@@ -502,14 +510,14 @@ begin
         when call_6 =>
             con(Et) <= '1';
             con(Mw) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** CMA
         when cma_0 =>
             alu_code <= ALU_NOTA;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** DCR A
         when dcra_0 =>
@@ -520,7 +528,8 @@ begin
             alu_code <= ALU_DECB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** DCR B
         when dcrb_0 =>
@@ -531,7 +540,8 @@ begin
             alu_code <= ALU_DECB;
             con(Eu) <= '1';
             con(Lb) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** DCR C
         when dcrc_0 =>
@@ -542,12 +552,13 @@ begin
             alu_code <= ALU_DECB;
             con(Eu) <= '1';
             con(Lc) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** HLT
         when hlt_0 =>
             con(HALT) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** INR A
         when inra_0 =>
@@ -558,7 +569,8 @@ begin
             alu_code <= ALU_INCB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** INR B
         when inrb_0 =>
@@ -569,7 +581,8 @@ begin
             alu_code <= ALU_INCB;
             con(Eu) <= '1';
             con(Lb) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** INR C
         when inrc_0 =>
@@ -580,7 +593,8 @@ begin
             alu_code <= ALU_INCB;
             con(Eu) <= '1';
             con(Lc) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** JM address
         when jm_0 =>
@@ -595,7 +609,7 @@ begin
                 con(Emdr) <= '1';
                 con(Lp) <= '1';
             end if;
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** JMP address
         when jmp_0 =>
@@ -608,7 +622,7 @@ begin
         when jmp_2 =>
             con(Emdr) <= '1';
             con(Lp) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** JNZ address
         when jnz_0 =>
@@ -623,7 +637,7 @@ begin
                 con(Emdr) <= '1';
                 con(Lp) <= '1';
             end if;
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** JZ address
         when jz_0 =>
@@ -638,7 +652,7 @@ begin
                 con(Emdr) <= '1';
                 con(Lp) <= '1';
             end if;
-            ns <= fetch_address;
+            ns <= address_state;
 	
         -- ***** LDA address
         when lda_0 =>
@@ -657,33 +671,33 @@ begin
         when lda_4 =>
             con(Emdr) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
 
         -- ***** MOVSD
         when movab_0 =>
             con(Ea) <= '1';
             con(Lb) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
         when movac_0 =>
             con(Ea) <= '1';
             con(Lc) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
         when movba_0 =>
             con(Eb) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
         when movbc_0 =>
             con(Eb) <= '1';
             con(Lc) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
         when movca_0 =>
             con(Ec) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
         when movcb_0 =>
             con(Ec) <= '1';
             con(Lb) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** MVIA byte
         when mvia_0 =>
@@ -696,7 +710,7 @@ begin
         when mvia_2 =>
             con(Emdr) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
 
         -- ***** MVIB byte
         when mvib_0 =>
@@ -709,7 +723,7 @@ begin
         when mvib_2 =>
             con(Emdr) <= '1';
             con(Lb) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
 
         -- ***** MVIC byte
         when mvic_0 =>
@@ -722,11 +736,11 @@ begin
         when mvic_2 =>
             con(Emdr) <= '1';
             con(Lc) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
 
         -- ***** NOP
         when nop_0 =>
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** ORA B
         when orab_0 =>
@@ -744,7 +758,8 @@ begin
             alu_code <= ALU_AORB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** ORI byte
         when ori_0 =>
@@ -762,27 +777,28 @@ begin
             alu_code <= ALU_AORB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
 
         -- ***** OUT byte
         when out_0 =>
             con(Ea) <= '1';
             con(Lo) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
         
         -- ***** RAL
         when ral_0 =>
             alu_code <= ALU_ROLA;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
         
         -- ***** RAR
         when rar_0 =>
             alu_code <= ALU_RORA;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** RET
         when ret_0 =>
@@ -791,9 +807,11 @@ begin
             con(Lmar) <= '1';
             ns <= ret_1;
         when ret_1 =>
+            ns <= ret_2; -- SLEEP
+        when ret_2 =>
             con(Emdr) <= '1';
             con(Lp) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** STA address
         when sta_0 =>
@@ -810,7 +828,7 @@ begin
         when sta_3 =>
             con(Ea) <= '1';
             con(Mw) <= '1';
-            ns <= fetch_address;
+            ns <= address_state;
             
         -- ***** SUB B
         when subb_0 =>
@@ -828,7 +846,8 @@ begin
             alu_code <= ALU_AMINUSB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** XRA B
         when xrab_0 =>
@@ -846,7 +865,8 @@ begin
             alu_code <= ALU_AXORB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
             
         -- ***** XRI byte
         when xri_0 =>
@@ -864,11 +884,12 @@ begin
             alu_code <= ALU_AXORB;
             con(Eu) <= '1';
             con(La) <= '1';
-            ns <= fetch_address;
+            con(Sf) <= '1';
+            ns <= address_state;
 
 		when others =>
 			con <= (others=>'0');
-			ns <= fetch_address;
+			ns <= address_state;
 		end case;
     end process cpu_state_machine_transitions;
 

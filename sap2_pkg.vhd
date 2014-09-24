@@ -76,13 +76,14 @@ package sap2_pkg is
     constant Eu     : integer := 17;
     constant Su     : integer := 18;
     constant Lo     : integer := 19;
-    constant HALT   : integer := 20;
+    constant Sf     : integer := 20;
+    constant HALT   : integer := 21;
     
     type t_cpu_state is (
         
-        fetch_address,
+        address_state,
         
-        increment_pc_load_instruction,
+        increment_and_memory_state,
         
         decode_instruction,
         
@@ -186,6 +187,7 @@ package sap2_pkg is
         
         ret_0,
         ret_1,
+        ret_2,
         
         sta_0,
         sta_1,
