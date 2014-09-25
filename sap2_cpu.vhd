@@ -22,7 +22,12 @@ entity sap2_cpu is
         reset       : in std_logic;
 
         halt_out    : out std_logic;
-        p0_out      : out std_logic_vector(7 downto 0)
+        p0_out      : out std_logic_vector(7 downto 0);
+        
+        mar_out     : out std_logic_vector(7 downto 0);
+        acc_out     : out std_logic_vector(7 downto 0);
+        opcode_out  : out std_logic_vector(7 downto 0);
+        alu_out     : out std_logic_vector(7 downto 0)
     );
 end entity sap2_cpu;
 
@@ -33,7 +38,7 @@ architecture microcoded of sap2_cpu is
     type t_ram is array (0 to 255) of t_data;
 
     signal ram : t_ram := (
-        x"C3",x"80",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
+        x"C3",x"90",x"3E",x"FF",x"D3",x"76",x"FF",x"FF", -- 00H
         x"3A",x"FF",x"06",x"02",x"80",x"D3",x"00",x"00", -- 08H
         x"3A",x"FE",x"0E",x"04",x"81",x"D3",x"00",x"00", -- 10H
         x"3E",x"FF",x"06",x"0F",x"0E",x"0A",x"A0",x"D3", -- 18H
@@ -51,8 +56,8 @@ architecture microcoded of sap2_cpu is
         x"3E",x"0A",x"D3",x"3D",x"D3",x"76",x"FF",x"FF", -- 78H
         x"3E",x"00",x"06",x"10",x"0E",x"04",x"CD",x"F0", -- 80H
         x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 90H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
+        x"3E",x"01",x"06",x"02",x"0E",x"03",x"80",x"D3", -- 90H
+        x"81",x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A0H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A8H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B0H
@@ -71,6 +76,7 @@ architecture microcoded of sap2_cpu is
 
     signal ACC_reg  : t_data;
     signal TMP_reg  : t_data;
+    signal ALU_reg  : t_data;
     signal B_reg    : t_data;
     signal C_reg    : t_data;
     signal PC_reg   : t_address;
@@ -96,6 +102,11 @@ begin
 
     halt_out <= con(HALT);
     p0_out <= O_reg;
+    
+    mar_out <= MAR_reg;
+    acc_out <= ACC_reg;
+    opcode_out <= op_code;
+    alu_out <= ALU_reg;
     
     run:
     process (clock, reset, con)
@@ -257,7 +268,7 @@ begin
     op_code <= I_reg;
 
     O_register:
-    process (clk, reset)
+    process (clk, reset, con)
     begin
         if reset = '1' then
             O_reg <= (others => '0');
@@ -267,38 +278,69 @@ begin
             end if;
         end if;
     end process O_register;
-
+    
     arithmetic_logic_unit:
-    process (clk, con)
+    process (clk, con, alu_code)
+        variable a  : t_data;
+        variable b  : t_data;
     begin
-        if con(Eu) = '1' then
-            w_bus <= alu_result;
-        else
-            w_bus <= (others => 'Z');
-        end if;
+--        if clk'event and clk = '1' then
+--            if con(Lu) = '1' then
+                a := w_bus;
+                b := TMP_reg;
+                case alu_code is
+                when ALU_NOT =>
+                    ALU_reg <= not a;
+                when ALU_AND =>
+                    ALU_reg <= a and b;
+                when ALU_OR =>
+                    ALU_reg <= a or b;
+                when ALU_XOR =>
+                    ALU_reg <= a xor b;
+                when ALU_ROL =>
+                    ALU_reg <= to_stdlogicvector(to_bitvector(a) rol 1);
+                when ALU_ROR =>
+                    ALU_reg <= to_stdlogicvector(to_bitvector(a) ror 1);
+                when ALU_ONES =>
+                    ALU_reg <= (others => '1');
+                when ALU_INC =>
+                    ALU_reg <= a + 1;
+                when ALU_DEC =>
+                    ALU_reg <= a - 1;
+                when ALU_ADD =>
+                    ALU_reg <= a + b;
+                when ALU_SUB =>
+                    ALU_reg <= a - b;
+                when others =>
+                    null;
+                end case;
+--            end if;
+--        end if;
     end process arithmetic_logic_unit;
     
-    alu: entity work.sap2_alu
-    port map (
-        a           => ACC_reg,
-        b           => TMP_reg,
-        cin         => '0',
-        code        => alu_code,
-        result      => alu_result,
-        cout        => open
-    );
+    ALU_register:
+    process (clk)    
+    begin
+        if clk'event and clk = '1' then
+            if con(Eu) = '1' then
+                w_bus <= ALU_reg;
+            else
+                w_bus <= (others => 'Z');
+            end if;
+        end if;
+    end process ALU_register;
     
     flags:
     process (clk, con)
     begin
         if clk'event and clk = '0' then
-            if con(Sf) = '1' then
-                if ACC_reg(7) = '1' then
+            if con(Lsz) = '1' then
+                if ALU_reg(7) = '1' then
                     flag_s <= '1';
                 else
                     flag_s <= '0';
                 end if;
-                if ACC_reg = "0" then
+                if ALU_reg = "0" then
                     flag_z <= '1';
                 else
                     flag_z <= '0';
@@ -326,10 +368,13 @@ begin
 		when address_state =>
             con(Ep) <= '1';
             con(Lmar) <= '1';
-			ns <= increment_and_memory_state;
+			ns <= increment_state;
             
-		when increment_and_memory_state =>
+		when increment_state =>
             con(Cp) <= '1';
+			ns <= memory_state;
+            
+		when memory_state =>
             con(Emdr) <= '1';
             con(Li) <= '1';
 			ns <= decode_instruction;
@@ -437,10 +482,10 @@ begin
             ns <= add_1;
             
         when add_1 =>
-            alu_code <= ALU_APLUSB;
+            alu_code <= ALU_ADD;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** ANA B
@@ -456,10 +501,10 @@ begin
             ns <= ana_1;
             
         when ana_1 =>
-            alu_code <= ALU_AANDB;
+            alu_code <= ALU_AND;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** ANI byte
@@ -475,10 +520,10 @@ begin
             con(Lt) <= '1';
             ns <= ani_3;
         when ani_3 =>
-            alu_code <= ALU_AANDB;
+            alu_code <= ALU_AND;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** CALL address
@@ -511,38 +556,29 @@ begin
             
         -- ***** CMA
         when cma_0 =>
-            alu_code <= ALU_NOTA;
+            alu_code <= ALU_NOT;
             con(Eu) <= '1';
             con(La) <= '1';
             ns <= address_state;
             
         -- ***** DCR A
         when dcra_0 =>
-            alu_code <= ALU_DECA;
+            alu_code <= ALU_DEC;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** DCR B
         when dcrb_0 =>
-            con(Ea) <= '1';
-            con(Lt) <= '1';
+            con(Eb) <= '1';
+            con(Lu) <= '1';
+            alu_code <= ALU_DEC;
+            con(Lsz) <= '1';
             ns <= dcrb_1;
         when dcrb_1 =>
-            con(Eb) <= '1';
-            con(La) <= '1';
-            ns <= dcrb_2;
-        when dcrb_2 =>
-            alu_code <= ALU_DECA;
             con(Eu) <= '1';
-            con(La) <= '1';
             con(Lb) <= '1';
-            con(Sf) <= '1';
-            ns <= dcrb_3;
-        when dcrb_3 =>
-            con(Et) <= '1';
-            con(La) <= '1';
             ns <= address_state;
             
         -- ***** DCR C
@@ -555,11 +591,11 @@ begin
             con(La) <= '1';
             ns <= dcrc_2;
         when dcrc_2 =>
-            alu_code <= ALU_DECA;
+            alu_code <= ALU_DEC;
             con(Eu) <= '1';
             con(Lc) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= dcrc_3;
         when dcrc_3 =>
             ns <= dcrc_4;
@@ -575,10 +611,10 @@ begin
             
         -- ***** INR A
         when inra_0 =>
-            alu_code <= ALU_INCA;
+            alu_code <= ALU_INC;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** INR B
@@ -587,11 +623,11 @@ begin
             con(La) <= '1';
             ns <= inrb_1;
         when inrb_1 =>
-            alu_code <= ALU_INCA;
+            alu_code <= ALU_INC;
             con(Eu) <= '1';
             con(Lb) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** INR C
@@ -600,11 +636,11 @@ begin
             con(La) <= '1';
             ns <= inrc_1;
         when inrc_1 =>
-            alu_code <= ALU_INCA;
+            alu_code <= ALU_INC;
             con(Eu) <= '1';
             con(Lc) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** JM address
@@ -766,10 +802,10 @@ begin
             ns <= ora_1;
             
         when ora_1 =>
-            alu_code <= ALU_AORB;
+            alu_code <= ALU_OR;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** ORI byte
@@ -785,10 +821,10 @@ begin
             con(Lt) <= '1';
             ns <= ori_3;
         when ori_3 =>
-            alu_code <= ALU_AORB;
+            alu_code <= ALU_OR;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
 
         -- ***** OUT byte
@@ -799,14 +835,14 @@ begin
         
         -- ***** RAL
         when ral_0 =>
-            alu_code <= ALU_ROLA;
+            alu_code <= ALU_ROL;
             con(Eu) <= '1';
             con(La) <= '1';
             ns <= address_state;
         
         -- ***** RAR
         when rar_0 =>
-            alu_code <= ALU_RORA;
+            alu_code <= ALU_ROR;
             con(Eu) <= '1';
             con(La) <= '1';
             ns <= address_state;
@@ -854,10 +890,10 @@ begin
             ns <= sub_1;
             
         when sub_1 =>
-            alu_code <= ALU_AMINUSB;
+            alu_code <= ALU_SUB;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** XRA B
@@ -873,10 +909,10 @@ begin
             ns <= xra_1;
             
         when xra_1 =>
-            alu_code <= ALU_AXORB;
+            alu_code <= ALU_XOR;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** XRI byte
@@ -892,10 +928,10 @@ begin
             con(Lt) <= '1';
             ns <= xri_3;
         when xri_3 =>
-            alu_code <= ALU_AXORB;
+            alu_code <= ALU_XOR;
             con(Eu) <= '1';
             con(La) <= '1';
-            con(Sf) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
 
 		when others =>

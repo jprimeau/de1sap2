@@ -74,16 +74,18 @@ package sap2_pkg is
     constant Lc     : integer := 15;
     constant Ec     : integer := 16;
     constant Eu     : integer := 17;
-    constant Su     : integer := 18;
+    constant Lu     : integer := 18;
     constant Lo     : integer := 19;
-    constant Sf     : integer := 20;
+    constant Lsz    : integer := 20;
     constant HALT   : integer := 21;
     
     type t_cpu_state is (
         
         address_state,
         
-        increment_and_memory_state,
+        increment_state,
+        
+        memory_state,
         
         decode_instruction,
         
@@ -213,16 +215,16 @@ package sap2_pkg is
     
     subtype t_alucode is std_logic_vector(3 downto 0);
     
-    constant ALU_NOTA       : t_alucode := x"0";
-    constant ALU_AANDB      : t_alucode := x"1";
-    constant ALU_AORB       : t_alucode := x"2";
-    constant ALU_AXORB      : t_alucode := x"3";
-    constant ALU_ROLA       : t_alucode := x"4";
-    constant ALU_RORA       : t_alucode := x"5";
-    constant ALU_INCA       : t_alucode := x"6";
-    constant ALU_DECA       : t_alucode := x"7";
-    constant ALU_APLUSB     : t_alucode := x"8";
-    constant ALU_AMINUSB    : t_alucode := x"9";
+    constant ALU_NOT        : t_alucode := x"0";
+    constant ALU_AND        : t_alucode := x"1";
+    constant ALU_OR         : t_alucode := x"2";
+    constant ALU_XOR        : t_alucode := x"3";
+    constant ALU_ROL        : t_alucode := x"4";
+    constant ALU_ROR        : t_alucode := x"5";
+    constant ALU_INC        : t_alucode := x"6";
+    constant ALU_DEC        : t_alucode := x"7";
+    constant ALU_ADD        : t_alucode := x"8";
+    constant ALU_SUB        : t_alucode := x"9";
     constant ALU_ONES       : t_alucode := x"A";
 
 end package sap2_pkg;
