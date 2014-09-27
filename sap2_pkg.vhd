@@ -64,22 +64,23 @@ package sap2_pkg is
     constant Emdr   : integer := 05;
     constant Mw     : integer := 06;
     constant Li     : integer := 07;
-    constant Ei     : integer := 08;
-    constant La     : integer := 09;
-    constant Ea     : integer := 10;
-    constant Lt     : integer := 11;
-    constant Et     : integer := 12;
-    constant Lb     : integer := 13;
-    constant Eb     : integer := 14;
-    constant Lc     : integer := 15;
-    constant Ec     : integer := 16;
-    constant Eu     : integer := 17;
-    constant Lu     : integer := 18;
-    constant Lo     : integer := 19;
-    constant Lsz    : integer := 20;
-    constant HALT   : integer := 21;
+    constant La     : integer := 08;
+    constant Ea     : integer := 09;
+    constant Lt     : integer := 10;
+    constant Et     : integer := 11;
+    constant Lb     : integer := 12;
+    constant Eb     : integer := 13;
+    constant Lc     : integer := 14;
+    constant Ec     : integer := 15;
+    constant Eu     : integer := 16;
+    constant Lu     : integer := 17;
+    constant Lo     : integer := 18;
+    constant Lsz    : integer := 19;
+    constant HALT   : integer := 20;
     
     type t_cpu_state is (
+    
+        reset_state,
         
         address_state,
         
@@ -92,10 +93,12 @@ package sap2_pkg is
         addb_0,
         addc_0,
         add_1,
+        add_2,
         
         anab_0,
         anac_0,
         ana_1,
+        ana_2,
         
         ani_0,
         ani_1,
@@ -113,17 +116,16 @@ package sap2_pkg is
         cma_0,
         
         dcra_0,
+        dcra_1,
+        dcra_2,
         
         dcrb_0,
         dcrb_1,
         dcrb_2,
-        dcrb_3,
         
         dcrc_0,
         dcrc_1,
         dcrc_2,
-        dcrc_3,
-        dcrc_4,
         
         hlt_0,
         

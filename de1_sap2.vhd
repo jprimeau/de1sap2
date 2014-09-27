@@ -46,6 +46,8 @@ architecture rtl of de1_sap2 is
     signal counter_1hz      : std_logic_vector(25 downto 0);
     signal clk_10hz         : std_logic;
     signal counter_10hz     : std_logic_vector(25 downto 0);
+    signal clk_100hz        : std_logic;
+    signal counter_100hz    : std_logic_vector(25 downto 0);
     signal cpu_clk          : std_logic;
     signal halt             : std_logic;
     signal p0               : std_logic_vector(7 downto 0);
@@ -85,7 +87,7 @@ begin
     
     LEDR(9) <= SW(9);
     LEDR(8 downto 1) <= (others => '0');
-    LEDR(0) <= cpu_clk;
+    LEDR(0) <=  clk_10Hz;
     
     LEDG <= p0;
     
@@ -94,7 +96,7 @@ begin
     HEX2 <= (others => '1');
     HEX3 <= (others => '1') when halt = '0' else "1001000";
     
-    cpu_clk <= clk_1hz when SW(0) = '0' else clk_10hz;
+    cpu_clk <= clk_1hz when SW(0) = '0' else clk_100hz;
 
     -- Generate a 1Hz clock.
     process(CLOCK_50)
@@ -127,6 +129,24 @@ begin
                     clk_10hz <= not clk_10hz;
                 else
                     counter_10hz <= counter_10hz + 1;
+                end if;
+            end if;
+        end if;
+    end process;
+    
+    -- Generate a 100Hz clock.
+    process(CLOCK_50)
+    begin
+        if CLOCK_50'event and CLOCK_50 = '1' then
+            if reset = '1' then
+                clk_100hz <= '0';
+                counter_100hz <= (others => '0');
+            else
+                if conv_integer(counter_100hz) = 250000 then
+                    counter_100hz <= (others => '0');
+                    clk_100hz <= not clk_100hz;
+                else
+                    counter_100hz <= counter_100hz + 1;
                 end if;
             end if;
         end if;

@@ -24,10 +24,19 @@ entity sap2_cpu is
         halt_out    : out std_logic;
         p0_out      : out std_logic_vector(7 downto 0);
         
-        mar_out     : out std_logic_vector(7 downto 0);
         acc_out     : out std_logic_vector(7 downto 0);
-        opcode_out  : out std_logic_vector(7 downto 0);
-        alu_out     : out std_logic_vector(7 downto 0)
+        tmp_out     : out std_logic_vector(7 downto 0);
+        alu_out     : out std_logic_vector(7 downto 0);
+        b_out       : out std_logic_vector(7 downto 0);
+        c_out       : out std_logic_vector(7 downto 0);
+        ea_out      : out std_logic;
+        la_out      : out std_logic;
+        eu_out      : out std_logic;
+        lu_out      : out std_logic;
+        lsz_out     : out std_logic;
+        s_out       : out std_logic;
+        z_out       : out std_logic
+        
     );
 end entity sap2_cpu;
 
@@ -38,26 +47,26 @@ architecture microcoded of sap2_cpu is
     type t_ram is array (0 to 255) of t_data;
 
     signal ram : t_ram := (
-        x"C3",x"90",x"3E",x"FF",x"D3",x"76",x"FF",x"FF", -- 00H
-        x"3A",x"FF",x"06",x"02",x"80",x"D3",x"00",x"00", -- 08H
-        x"3A",x"FE",x"0E",x"04",x"81",x"D3",x"00",x"00", -- 10H
-        x"3E",x"FF",x"06",x"0F",x"0E",x"0A",x"A0",x"D3", -- 18H
-        x"A1",x"D3",x"E6",x"02",x"D3",x"76",x"FF",x"FF", -- 20H
-        x"3E",x"AB",x"32",x"FF",x"3E",x"00",x"3A",x"FF", -- 28H
-        x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 30H
-        x"3E",x"01",x"17",x"D3",x"1F",x"D3",x"76",x"FF", -- 38H
-        x"3E",x"FF",x"FA",x"48",x"3E",x"0A",x"D3",x"76", -- 40H
-        x"3E",x"0B",x"D3",x"76",x"FF",x"FF",x"FF",x"FF", -- 48H
-        x"CD",x"58",x"3E",x"AB",x"D3",x"76",x"FF",x"FF", -- 50H
-        x"3A",x"FF",x"D3",x"C9",x"76",x"FF",x"FF",x"FF", -- 58H
-        x"3E",x"0A",x"D3",x"3D",x"C2",x"62",x"3E",x"FF", -- 60H
-        x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
-        x"0E",x"0A",x"4F",x"D3",x"0D",x"4F",x"D3",x"76", -- 70H
-        x"3E",x"0A",x"D3",x"3D",x"D3",x"76",x"FF",x"FF", -- 78H
-        x"3E",x"00",x"06",x"10",x"0E",x"04",x"CD",x"F0", -- 80H
-        x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
-        x"3E",x"01",x"06",x"02",x"0E",x"03",x"80",x"D3", -- 90H
-        x"81",x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
+        x"3E",x"00",x"06",x"10",x"0E",x"0E",x"CD",x"F0", -- 00H
+        x"D3",x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 08H
+        x"06",x"0A",x"05",x"47",x"D3",x"76",x"FF",x"FF", -- 10H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 18H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 20H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 28H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 30H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 38H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 40H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 48H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 50H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 58H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 60H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 70H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 78H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 80H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 90H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A0H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A8H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B0H
@@ -66,10 +75,10 @@ architecture microcoded of sap2_cpu is
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C8H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D0H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E0H
+        x"3E",x"AB",x"C9",x"FF",x"FF",x"FF",x"FF",x"FF", -- E0H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E8H
-        x"80",x"0D",x"D3",x"C2",x"F0",x"C9",x"FF",x"FF", -- F0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"03",x"01"  -- F8H
+        x"80",x"0D",x"C2",x"F0",x"C9",x"FF",x"FF",x"FF", -- F0H
+        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF"  -- F8H
     );
 
     signal ns, ps   : t_cpu_state;
@@ -90,10 +99,8 @@ architecture microcoded of sap2_cpu is
     signal op_code  : t_opcode;
     
     signal alu_code : t_alucode;
-    
-    signal alu_result   : t_data;
 
-    signal con      : std_logic_vector(21 downto 0) := (others => '0');
+    signal con      : std_logic_vector(20 downto 0) := (others => '0');
     
     signal flag_z   : std_logic;
     signal flag_s   : std_logic;
@@ -103,13 +110,21 @@ begin
     halt_out <= con(HALT);
     p0_out <= O_reg;
     
-    mar_out <= MAR_reg;
     acc_out <= ACC_reg;
-    opcode_out <= op_code;
+    tmp_out <= TMP_reg;
     alu_out <= ALU_reg;
+    b_out <= B_reg;
+    c_out <= C_reg;
+    ea_out <= con(Ea);
+    la_out <= con(La);
+    eu_out <= con(Eu);
+    lu_out <= con(Lu);
+    lsz_out <= con(Lsz);
+    s_out <= flag_s;
+    z_out <= flag_z;
     
     run:
-    process (clock, reset, con)
+    process (clock, reset)
     begin
         if reset = '1' then
             clk <= '0';
@@ -123,7 +138,7 @@ begin
     end process run;
 
     program_counter:
-    process (clk, reset, con)
+    process (clk, reset)
     begin
         if reset = '1' then
             PC_reg <= (others => '0');
@@ -181,7 +196,7 @@ begin
 --    end process MDR_register;
     
     ACC_register:
-    process (clk, reset, con)
+    process (clk, reset)
     begin
         if reset = '1' then
             ACC_reg <= (others => '0');
@@ -198,7 +213,7 @@ begin
     end process ACC_register;
     
     TMP_register:
-    process (clk, reset, con)
+    process (clk, reset)
     begin
         if reset = '1' then
             TMP_reg <= (others => '0');
@@ -215,7 +230,7 @@ begin
     end process TMP_register;
     
     B_register:
-    process (clk, reset, con)
+    process (clk, reset)
     begin
         if reset = '1' then
             B_reg <= (others => '0');
@@ -232,7 +247,7 @@ begin
     end process B_register;
     
     C_register:
-    process (clk, reset, con)
+    process (clk, reset)
     begin
         if reset = '1' then
             C_reg <= (others => '0');
@@ -249,7 +264,7 @@ begin
     end process C_register;
     
     I_register:
-    process (clk, reset, con)
+    process (clk, reset)
     begin
         if reset = '1' then
             I_reg <= (others => '0');
@@ -258,17 +273,12 @@ begin
                 I_reg <= w_bus;
             end if;
         end if;
-        if con(Ei) = '1' then
-            w_bus <= I_reg;
-        else
-            w_bus <= (others => 'Z');
-        end if;
     end process I_register;
     
     op_code <= I_reg;
 
     O_register:
-    process (clk, reset, con)
+    process (clk, reset)
     begin
         if reset = '1' then
             O_reg <= (others => '0');
@@ -280,12 +290,14 @@ begin
     end process O_register;
     
     arithmetic_logic_unit:
-    process (clk, con, alu_code)
+    process (clk, reset)
         variable a  : t_data;
         variable b  : t_data;
     begin
---        if clk'event and clk = '1' then
---            if con(Lu) = '1' then
+        if reset = '1' then
+            ALU_reg <= (others => '0');
+        elsif clk'event and clk = '1' then
+            if con(Lu) = '1' then
                 a := w_bus;
                 b := TMP_reg;
                 case alu_code is
@@ -314,26 +326,19 @@ begin
                 when others =>
                     null;
                 end case;
---            end if;
---        end if;
-    end process arithmetic_logic_unit;
-    
-    ALU_register:
-    process (clk)    
-    begin
-        if clk'event and clk = '1' then
-            if con(Eu) = '1' then
-                w_bus <= ALU_reg;
-            else
-                w_bus <= (others => 'Z');
             end if;
         end if;
-    end process ALU_register;
+        if con(Eu) = '1' then
+            w_bus <= ALU_reg;
+        else
+            w_bus <= (others => 'Z');
+        end if;
+    end process arithmetic_logic_unit;
     
     flags:
     process (clk, con)
     begin
-        if clk'event and clk = '0' then
+        if clk'event and clk = '1' then
             if con(Lsz) = '1' then
                 if ALU_reg(7) = '1' then
                     flag_s <= '1';
@@ -353,8 +358,8 @@ begin
     process (clk)
     begin
         if reset = '1' then
-            ps <= address_state;
-        elsif clk'event and clk='1' then
+            ps <= reset_state;
+        elsif clk'event and clk='0' then
             ps <= ns;
         end if;
     end process cpu_state_machine_reg;
@@ -364,6 +369,9 @@ begin
     begin
         con <= (others => '0');
         case ps is
+        
+        when reset_state =>
+            ns <= address_state;
         
 		when address_state =>
             con(Ep) <= '1';
@@ -483,6 +491,10 @@ begin
             
         when add_1 =>
             alu_code <= ALU_ADD;
+            con(Ea) <= '1';
+            con(Lu) <= '1';
+            ns <= add_2;
+        when add_2 =>
             con(Eu) <= '1';
             con(La) <= '1';
             con(Lsz) <= '1';
@@ -502,6 +514,10 @@ begin
             
         when ana_1 =>
             alu_code <= ALU_AND;
+            con(Ea) <= '1';
+            con(Lu) <= '1';
+            ns <= ana_2;
+        when ana_2 =>
             con(Eu) <= '1';
             con(La) <= '1';
             con(Lsz) <= '1';
@@ -564,6 +580,12 @@ begin
         -- ***** DCR A
         when dcra_0 =>
             alu_code <= ALU_DEC;
+            con(Ea) <= '1';
+            con(Lu) <= '1';
+            ns <= dcra_1;
+        when dcra_1 =>
+            ns <= dcra_2;
+        when dcra_2 =>
             con(Eu) <= '1';
             con(La) <= '1';
             con(Lsz) <= '1';
@@ -571,37 +593,30 @@ begin
             
         -- ***** DCR B
         when dcrb_0 =>
+            alu_code <= ALU_DEC;
             con(Eb) <= '1';
             con(Lu) <= '1';
-            alu_code <= ALU_DEC;
-            con(Lsz) <= '1';
             ns <= dcrb_1;
         when dcrb_1 =>
+            ns <= dcrb_2;
+        when dcrb_2 =>
             con(Eu) <= '1';
             con(Lb) <= '1';
+            con(Lsz) <= '1';
             ns <= address_state;
             
         -- ***** DCR C
         when dcrc_0 =>
-            con(Ea) <= '1';
-            con(Lt) <= '1';
+            alu_code <= ALU_DEC;
+            con(Ec) <= '1';
+            con(Lu) <= '1';
             ns <= dcrc_1;
         when dcrc_1 =>
-            con(Ec) <= '1';
-            con(La) <= '1';
             ns <= dcrc_2;
         when dcrc_2 =>
-            alu_code <= ALU_DEC;
             con(Eu) <= '1';
             con(Lc) <= '1';
-            con(La) <= '1';
             con(Lsz) <= '1';
-            ns <= dcrc_3;
-        when dcrc_3 =>
-            ns <= dcrc_4;
-        when dcrc_4 =>
-            con(Et) <= '1';
-            con(La) <= '1';
             ns <= address_state;
             
         -- ***** HLT
