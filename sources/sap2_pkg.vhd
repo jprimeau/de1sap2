@@ -77,7 +77,7 @@ package sap2_pkg is
     constant Lo     : integer := 18;
     constant Lsz    : integer := 19;
     constant HALT   : integer := 20;
-    
+
     type t_cpu_state is (
     
         reset_state,
@@ -90,22 +90,16 @@ package sap2_pkg is
         
         decode_instruction,
         
-        addb_0,
-        addc_0,
         add_1,
         add_2,
         
-        anab_0,
-        anac_0,
         ana_1,
         ana_2,
         
-        ani_0,
         ani_1,
         ani_2,
         ani_3,
         
-        call_0,
         call_1,
         call_2,
         call_3,
@@ -113,103 +107,60 @@ package sap2_pkg is
         call_5,
         call_6,
         
-        cma_0,
-        
-        dcra_0,
         dcra_1,
         dcra_2,
         
-        dcrb_0,
         dcrb_1,
         dcrb_2,
         
-        dcrc_0,
         dcrc_1,
         dcrc_2,
         
-        hlt_0,
-        
-        inra_0,
-        
-        inrb_0,
         inrb_1,
         
-        inrc_0,
         inrc_1,
         
-        jm_0,
         jm_1,
         jm_2,
         
-        jmp_0,
         jmp_1,
         jmp_2,
         
-        jnz_0,
         jnz_1,
         jnz_2,
         
-        jz_0,
         jz_1,
         jz_2,
         
-        lda_0,
         lda_1,
         lda_2,
         lda_3,
         lda_4,
         
-        movab_0,
-        movac_0,
-        movba_0,
-        movbc_0,
-        movca_0,
-        movcb_0,
-        
-        mvia_0,
         mvia_1,
         mvia_2,
-        mvib_0,
         mvib_1,
         mvib_2,
-        mvic_0,
         mvic_1,
         mvic_2,
         
-        nop_0,
-        
-        orab_0,
-        orac_0,
         ora_1,
         
-        ori_0,
         ori_1,
         ori_2,
         ori_3,
         
-        out_0,
-        
-        ral_0,
-        rar_0,
-        
-        ret_0,
         ret_1,
         ret_2,
         
-        sta_0,
         sta_1,
         sta_2,
         sta_3,
         
-        subb_0,
-        subc_0,
         sub_1,
         
-        xrab_0,
-        xrac_0,
         xra_1,
         
-        xri_0,
         xri_1,
         xri_2,
         xri_3

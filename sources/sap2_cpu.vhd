@@ -24,27 +24,34 @@ entity sap2_cpu is
         halt_out    : out std_logic;
         p0_out      : out std_logic_vector(7 downto 0);
         
-        bus_out     : out std_logic_vector(7 downto 0);
-        cp_out      : out std_logic;
-        lp_out      : out std_logic;
-        ep_out      : out std_logic;
-        lmar_out    : out std_logic;
-        emdr_out    : out std_logic;
-        li_out      : out std_logic;
+        -- BEGIN: SIMULATION ONLY
+        Lp_out      : out std_logic;
+        Cp_out      : out std_logic;
+        Ep_out      : out std_logic;
+        Lmar_out    : out std_logic;
+        Emdr_out    : out std_logic;
+        Mw_out      : out std_logic;
+        Li_out      : out std_logic;
+        La_out      : out std_logic;
+        Ea_out      : out std_logic;
+        Lt_out      : out std_logic;
+        Et_out      : out std_logic;
+        Lb_out      : out std_logic;
+        Eb_out      : out std_logic;
+        Lc_out      : out std_logic;
+        Ec_out      : out std_logic;
+        Lu_out      : out std_logic;
+        Eu_out      : out std_logic;
+        Lo_out      : out std_logic;
+        Lsz_out     : out std_logic;
         
+        bus_out     : out std_logic_vector(7 downto 0);
         acc_out     : out std_logic_vector(7 downto 0);
         tmp_out     : out std_logic_vector(7 downto 0);
         alu_out     : out std_logic_vector(7 downto 0);
         b_out       : out std_logic_vector(7 downto 0);
-        c_out       : out std_logic_vector(7 downto 0);
-        ea_out      : out std_logic;
-        la_out      : out std_logic;
-        eu_out      : out std_logic;
-        lu_out      : out std_logic;
-        lsz_out     : out std_logic;
-        s_out       : out std_logic;
-        z_out       : out std_logic
-        
+        c_out       : out std_logic_vector(7 downto 0)
+        -- END: SIMULATION ONLY
     );
 end entity sap2_cpu;
 
@@ -118,27 +125,33 @@ begin
     halt_out <= con(HALT);
     p0_out <= O_reg;
     
+    -- BEGIN: SIMULATION ONLY
+    Lp_out      <= con(Lp);
+    Cp_out      <= con(Cp);
+    Ep_out      <= con(Ep);
+    Lmar_out    <= con(Lmar);
+    Emdr_out    <= con(Emdr);
+    Mw_out      <= con(Mw);
+    Li_out      <= con(Li);
+    La_out      <= con(La);
+    Ea_out      <= con(Ea);
+    Lt_out      <= con(Lt);
+    Et_out      <= con(Et);
+    Lb_out      <= con(Lb);
+    Eb_out      <= con(Eb);
+    Lc_out      <= con(Lc);
+    Ec_out      <= con(Ec);
+    Lu_out      <= con(Lu);
+    Eu_out      <= con(Eu);
+    Lo_out      <= con(Lo);
+    Lsz_out     <= con(Lsz);
+    
     bus_out     <= w_bus;
-    cp_out      <= con(Cp);
-    lp_out      <= con(Lp);
-    ep_out      <= con(Ep);
-    lmar_out    <= con(Lmar);
-    emdr_out    <= con(Emdr);
-    li_out      <= con(Li);
-    
-    acc_out <= ACC_reg;
-    tmp_out <= TMP_reg;
-    alu_out <= ALU_reg;
-    b_out <= B_reg;
-    c_out <= C_reg;
-    ea_out <= con(Ea);
-    la_out <= con(La);
-    eu_out <= con(Eu);
-    lu_out <= con(Lu);
-    lsz_out <= con(Lsz);
-    s_out <= flag_s;
-    z_out <= flag_z;
-    
+    acc_out     <= ACC_reg;
+    tmp_out     <= TMP_reg;
+    alu_out     <= ALU_reg;
+    -- END: SIMULATION ONLY
+
     run:
     process (clock, reset, con)
     begin
@@ -188,11 +201,6 @@ begin
                 ram(conv_integer(MAR_reg)) <= w_bus;
             end if;
         end if;
---        if con(Emdr) = '1' then
---            w_bus <= ram(conv_integer(MAR_reg));
---        else
---            w_bus <= (others => 'Z');
---        end if;
     end process memory;
     w_bus <= ram(conv_integer(MAR_reg)) when con(Emdr) = '1' else (others => 'Z');
     
@@ -218,11 +226,6 @@ begin
                 ACC_reg <= w_bus;
             end if;
         end if;
---        if con(Ea) = '1' then
---            w_bus <= ACC_reg;
---        else
---            w_bus <= (others => 'Z');
---        end if;
     end process ACC_register;
     w_bus <= ACC_reg when con(Ea) = '1' else (others => 'Z');
     
@@ -236,11 +239,6 @@ begin
                 TMP_reg <= w_bus;
             end if;
         end if;
---        if con(Et) = '1' then
---            w_bus <= TMP_reg;
---        else
---            w_bus <= (others => 'Z');
---        end if;
     end process TMP_register;
     w_bus <= TMP_reg when con(Et) = '1' else (others => 'Z');
     
@@ -254,11 +252,6 @@ begin
                 B_reg <= w_bus;
             end if;
         end if;
---        if con(Eb) = '1' then
---            w_bus <= B_reg;
---        else
---            w_bus <= (others => 'Z');
---        end if;
     end process B_register;
     w_bus <= B_reg when con(Eb) = '1' else (others => 'Z');
     
@@ -272,11 +265,6 @@ begin
                 C_reg <= w_bus;
             end if;
         end if;
---        if con(Ec) = '1' then
---            w_bus <= C_reg;
---        else
---            w_bus <= (others => 'Z');
---        end if;
     end process C_register;
     w_bus <= C_reg when con(Ec) = '1' else (others => 'Z');
     
@@ -345,11 +333,6 @@ begin
                 end case;
             end if;
         end if;
---        if con(Eu) = '1' then
---            w_bus <= ALU_reg;
---        else
---            w_bus <= (others => 'Z');
---        end if;
     end process arithmetic_logic_unit;
     w_bus <= ALU_reg when con(Eu) = '1' else (others => 'Z');
     
@@ -407,388 +390,335 @@ begin
             
 		when decode_instruction =>
             case op_code is
---            when ADDB =>
---                ns <= addb_0;
---            when ADDC =>
---                ns <= addc_0;
---            when ANAB =>
---                ns <= anab_0;
---            when ANAC =>
---                ns <= anac_0;
---            when ANI =>
---                ns <= ani_0;
---            when CALL =>
---                ns <= call_0;
---            when CMA =>
---                ns <= cma_0;
---            when DCRA =>
---                ns <= dcra_0;
---            when DCRB =>
---                ns <= dcrb_0;
---            when DCRC =>
---                ns <= dcrc_0;
+            when ADDB =>
+                con(Eb) <= '1';
+                con(Lt) <= '1';
+                ns <= add_1;
+            when ADDC =>
+                con(Ec) <= '1';
+                con(Lt) <= '1';
+                ns <= add_1;
+            when ANAB =>
+                con(Eb) <= '1';
+                con(Lt) <= '1';
+                ns <= ana_1;
+            when ANAC =>
+                con(Ec) <= '1';
+                con(Lt) <= '1';
+                ns <= ana_1;
+            when ANI =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= ani_1;
+            when CALL =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= call_1;
+            when CMA =>
+                alu_code <= ALU_NOT;
+                con(Eu) <= '1';
+                con(La) <= '1';
+                ns <= address_state;
+            when DCRA =>
+                alu_code <= ALU_DEC;
+                con(Ea) <= '1';
+                con(Lu) <= '1';
+                ns <= dcra_1;
+            when DCRB =>
+                alu_code <= ALU_DEC;
+                con(Eb) <= '1';
+                con(Lu) <= '1';
+                ns <= dcrb_1;
+            when DCRC =>
+                alu_code <= ALU_DEC;
+                con(Ec) <= '1';
+                con(Lu) <= '1';
+                ns <= dcrc_1;
             when HLT =>
---                ns <= hlt_0;
                 con(HALT) <= '1';
                 ns <= address_state;
---            when INRA =>
---                ns <= inra_0;
---            when INRB =>
---                ns <= inrb_0;
---            when INRC =>
---                ns <= inrc_0;
---            when JM =>
---                ns <= jm_0;
---            when JMP =>
---                ns <= jmp_0;
---            when JNZ =>
---                ns <= jnz_0;
---            when JZ =>
---                ns <= jz_0;
---            when LDA =>
---                ns <= lda_0;
---            when MOVAB =>
---                ns <= movab_0;
---            when MOVAC =>
---                ns <= movac_0;
---            when MOVBA =>
---                ns <= movba_0;
---            when MOVBC =>
---                ns <= movbc_0;
---            when MOVCA =>
---                ns <= movca_0;
---            when MOVCB =>
---                ns <= movcb_0;
+            when INRA =>
+                alu_code <= ALU_INC;
+                con(Eu) <= '1';
+                con(La) <= '1';
+                con(Lsz) <= '1';
+                ns <= address_state;
+            when INRB =>
+                con(Eb) <= '1';
+                con(La) <= '1';
+                ns <= inrb_1;
+            when INRC =>
+                con(Ec) <= '1';
+                con(La) <= '1';
+                ns <= inrc_1;
+            when JM =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= jm_1;
+            when JMP =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= jmp_1;
+            when JNZ =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= jnz_1;
+            when JZ =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= jz_1;
+            when LDA =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= lda_1;
+            when MOVAB =>
+                con(Ea) <= '1';
+                con(Lb) <= '1';
+                ns <= address_state;
+            when MOVAC =>
+                con(Ea) <= '1';
+                con(Lc) <= '1';
+                ns <= address_state;
+            when MOVBA =>
+                con(Eb) <= '1';
+                con(La) <= '1';
+                ns <= address_state;
+            when MOVBC =>
+                con(Eb) <= '1';
+                con(Lc) <= '1';
+                ns <= address_state;
+            when MOVCA =>
+                con(Ec) <= '1';
+                con(La) <= '1';
+                ns <= address_state;
+            when MOVCB =>
+                con(Ec) <= '1';
+                con(Lb) <= '1';
+                ns <= address_state;
             when MVIA =>
---                ns <= mvia_0;
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
                 ns <= mvia_1;
---            when MVIB =>
---                ns <= mvib_0;
---            when MVIC =>
---                ns <= mvic_0;
---            when NOP =>
---                ns <= nop_0;
---            when ORAB =>
---                ns <= orab_0;
---            when ORAC =>
---                ns <= orac_0;
---            when ORI =>
---                ns <= ori_0;
---            when OUTB =>
---                ns <= out_0;
---            when RAL =>
---                ns <= ral_0;
---            when RAR =>
---                ns <= rar_0;
---            when RET =>
---                ns <= ret_0;
---            when STA =>
---                ns <= sta_0;
---            when SUBB =>
---                ns <= subb_0;
---            when SUBC =>
---                ns <= subc_0;
---            when XRAB =>
---                ns <= xrab_0;
---            when XRAC =>
---                ns <= xrac_0;
---            when XRI =>
---                ns <= xri_0;
+            when MVIB =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= mvib_1;
+            when MVIC =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= mvic_1;
+            when NOP =>
+                ns <= address_state;
+            when ORAB =>
+                con(Eb) <= '1';
+                con(Lt) <= '1';
+                ns <= ora_1;
+            when ORAC =>
+                con(Ec) <= '1';
+                con(Lt) <= '1';
+                ns <= ora_1;
+            when ORI =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= ori_1;
+            when OUTB =>
+                con(Ea) <= '1';
+                con(Lo) <= '1';
+                ns <= address_state;
+            when RAL =>
+                alu_code <= ALU_ROL;
+                con(Eu) <= '1';
+                con(La) <= '1';
+                ns <= address_state;
+            when RAR =>
+                alu_code <= ALU_ROR;
+                con(Eu) <= '1';
+                con(La) <= '1';
+                ns <= address_state;
+            when RET =>
+                alu_code <= ALU_ONES;
+                con(Eu) <= '1';
+                con(Lmar) <= '1';
+                ns <= ret_1;
+            when STA =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= sta_1;
+            when SUBB =>
+                con(Eb) <= '1';
+                con(Lt) <= '1';
+                ns <= sub_1;
+            when SUBC =>
+                con(Ec) <= '1';
+                con(Lt) <= '1';
+                ns <= sub_1;
+            when XRAB =>
+                con(Eb) <= '1';
+                con(Lt) <= '1';
+                ns <= xra_1;
+            when XRAC =>
+                con(Ec) <= '1';
+                con(Lt) <= '1';
+                ns <= xra_1;
+            when XRI =>
+                con(Ep) <= '1';
+                con(Lmar) <= '1';
+                ns <= xri_1;
             when others =>
                 ns <= address_state;
             end case;
-            
---        -- ***** ADD B
---        when addb_0 =>
---            con(Eb) <= '1';
---            con(Lt) <= '1';
---            ns <= add_1;
---            
---        -- ***** ADD C
---        when addc_0 =>
---            con(Ec) <= '1';
---            con(Lt) <= '1';
---            ns <= add_1;
---            
---        when add_1 =>
---            alu_code <= ALU_ADD;
---            con(Ea) <= '1';
---            con(Lu) <= '1';
---            ns <= add_2;
---        when add_2 =>
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** ANA B
---        when anab_0 =>
---            con(Eb) <= '1';
---            con(Lt) <= '1';
---            ns <= ana_1;
---            
---        -- ***** ANA C
---        when anac_0 =>
---            con(Ec) <= '1';
---            con(Lt) <= '1';
---            ns <= ana_1;
---            
---        when ana_1 =>
---            alu_code <= ALU_AND;
---            con(Ea) <= '1';
---            con(Lu) <= '1';
---            ns <= ana_2;
---        when ana_2 =>
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** ANI byte
---        when ani_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= ani_1;
---        when ani_1 =>
---            con(Cp) <= '1';
---            ns <= ani_2;
---        when ani_2 =>
---            con(Emdr) <= '1';
---            con(Lt) <= '1';
---            ns <= ani_3;
---        when ani_3 =>
---            alu_code <= ALU_AND;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** CALL address
---        when call_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= call_1;
---        when call_1 =>
---            con(Cp) <= '1';
---            ns <= call_2;
---        when call_2 =>
---            con(Ep) <= '1';
---            con(Lt) <= '1';
---            ns <= call_3;
---        when call_3 =>
---            con(Emdr) <= '1';
---            con(Lp) <= '1';
---            ns <= call_4;
---        when call_4 =>
---            alu_code <= ALU_ONES;
---            con(Eu) <= '1';
---            con(Lmar) <= '1';
---            ns <= call_5;
---        when call_5 =>
---            ns <= call_6; -- Sleep 1 cycle
---        when call_6 =>
---            con(Et) <= '1';
---            con(Mw) <= '1';
---            ns <= address_state;
---            
---        -- ***** CMA
---        when cma_0 =>
---            alu_code <= ALU_NOT;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            ns <= address_state;
---            
---        -- ***** DCR A
---        when dcra_0 =>
---            alu_code <= ALU_DEC;
---            con(Ea) <= '1';
---            con(Lu) <= '1';
---            ns <= dcra_1;
---        when dcra_1 =>
---            ns <= dcra_2;
---        when dcra_2 =>
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** DCR B
---        when dcrb_0 =>
---            alu_code <= ALU_DEC;
---            con(Eb) <= '1';
---            con(Lu) <= '1';
---            ns <= dcrb_1;
---        when dcrb_1 =>
---            ns <= dcrb_2;
---        when dcrb_2 =>
---            con(Eu) <= '1';
---            con(Lb) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** DCR C
---        when dcrc_0 =>
---            alu_code <= ALU_DEC;
---            con(Ec) <= '1';
---            con(Lu) <= '1';
---            ns <= dcrc_1;
---        when dcrc_1 =>
---            ns <= dcrc_2;
---        when dcrc_2 =>
---            con(Eu) <= '1';
---            con(Lc) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** HLT
---        when hlt_0 =>
---            con(HALT) <= '1';
---            ns <= address_state;
---            
---        -- ***** INR A
---        when inra_0 =>
---            alu_code <= ALU_INC;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** INR B
---        when inrb_0 =>
---            con(Eb) <= '1';
---            con(La) <= '1';
---            ns <= inrb_1;
---        when inrb_1 =>
---            alu_code <= ALU_INC;
---            con(Eu) <= '1';
---            con(Lb) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** INR C
---        when inrc_0 =>
---            con(Ec) <= '1';
---            con(La) <= '1';
---            ns <= inrc_1;
---        when inrc_1 =>
---            alu_code <= ALU_INC;
---            con(Eu) <= '1';
---            con(Lc) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** JM address
---        when jm_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= jm_1;
---        when jm_1 =>
---            con(Cp) <= '1';
---            ns <= jm_2;
---        when jm_2 =>
---            if flag_s = '1' then
---                con(Emdr) <= '1';
---                con(Lp) <= '1';
---            end if;
---            ns <= address_state;
---            
---        -- ***** JMP address
---        when jmp_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= jmp_1;
---        when jmp_1 =>
---            con(Cp) <= '1';
---            ns <= jmp_2;
---        when jmp_2 =>
---            con(Emdr) <= '1';
---            con(Lp) <= '1';
---            ns <= address_state;
---            
---        -- ***** JNZ address
---        when jnz_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= jnz_1;
---        when jnz_1 =>
---            con(Cp) <= '1';
---            ns <= jnz_2;
---        when jnz_2 =>
---            if flag_z = '0' then
---                con(Emdr) <= '1';
---                con(Lp) <= '1';
---            end if;
---            ns <= address_state;
---            
---        -- ***** JZ address
---        when jz_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= jz_1;
---        when jz_1 =>
---            con(Cp) <= '1';
---            ns <= jz_2;
---        when jz_2 =>
---            if flag_z = '1' then
---                con(Emdr) <= '1';
---                con(Lp) <= '1';
---            end if;
---            ns <= address_state;
---	
---        -- ***** LDA address
---        when lda_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= lda_1;
---        when lda_1 =>
---            con(Cp) <= '1';
---            ns <= lda_2;
---        when lda_2 =>
---            con(Emdr) <= '1';
---            con(Lmar) <= '1';
---            ns <= lda_3;
---        when lda_3 =>
---            ns <= lda_4; -- Sleep 1 cycle
---        when lda_4 =>
---            con(Emdr) <= '1';
---            con(La) <= '1';
---            ns <= address_state;
---
---        -- ***** MOVSD
---        when movab_0 =>
---            con(Ea) <= '1';
---            con(Lb) <= '1';
---            ns <= address_state;
---        when movac_0 =>
---            con(Ea) <= '1';
---            con(Lc) <= '1';
---            ns <= address_state;
---        when movba_0 =>
---            con(Eb) <= '1';
---            con(La) <= '1';
---            ns <= address_state;
---        when movbc_0 =>
---            con(Eb) <= '1';
---            con(Lc) <= '1';
---            ns <= address_state;
---        when movca_0 =>
---            con(Ec) <= '1';
---            con(La) <= '1';
---            ns <= address_state;
---        when movcb_0 =>
---            con(Ec) <= '1';
---            con(Lb) <= '1';
---            ns <= address_state;
---            
---        -- ***** MVIA byte
---        when mvia_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= mvia_1;
+
+        when add_1 =>
+            alu_code <= ALU_ADD;
+            con(Ea) <= '1';
+            con(Lu) <= '1';
+            ns <= add_2;
+        when add_2 =>
+            con(Eu) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+       
+        when ana_1 =>
+            alu_code <= ALU_AND;
+            con(Ea) <= '1';
+            con(Lu) <= '1';
+            ns <= ana_2;
+        when ana_2 =>
+            con(Eu) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when ani_1 =>
+            con(Cp) <= '1';
+            ns <= ani_2;
+        when ani_2 =>
+            con(Emdr) <= '1';
+            con(Lt) <= '1';
+            ns <= ani_3;
+        when ani_3 =>
+            alu_code <= ALU_AND;
+            con(Eu) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when call_1 =>
+            con(Cp) <= '1';
+            ns <= call_2;
+        when call_2 =>
+            con(Ep) <= '1';
+            con(Lt) <= '1';
+            ns <= call_3;
+        when call_3 =>
+            con(Emdr) <= '1';
+            con(Lp) <= '1';
+            ns <= call_4;
+        when call_4 =>
+            alu_code <= ALU_ONES;
+            con(Eu) <= '1';
+            con(Lmar) <= '1';
+            ns <= call_5;
+        when call_5 =>
+            ns <= call_6; -- Sleep 1 cycle
+        when call_6 =>
+            con(Et) <= '1';
+            con(Mw) <= '1';
+            ns <= address_state;
+
+        when dcra_1 =>
+            ns <= dcra_2;
+        when dcra_2 =>
+            con(Eu) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when dcrb_1 =>
+            ns <= dcrb_2;
+        when dcrb_2 =>
+            con(Eu) <= '1';
+            con(Lb) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when dcrc_1 =>
+            ns <= dcrc_2;
+        when dcrc_2 =>
+            con(Eu) <= '1';
+            con(Lc) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when inrb_1 =>
+            alu_code <= ALU_INC;
+            con(Eu) <= '1';
+            con(Lb) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when inrc_1 =>
+            alu_code <= ALU_INC;
+            con(Eu) <= '1';
+            con(Lc) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when jm_1 =>
+            con(Cp) <= '1';
+            ns <= jm_2;
+        when jm_2 =>
+            if flag_s = '1' then
+                con(Emdr) <= '1';
+                con(Lp) <= '1';
+            end if;
+            ns <= address_state;
+
+        when jmp_1 =>
+            con(Cp) <= '1';
+            ns <= jmp_2;
+        when jmp_2 =>
+            con(Emdr) <= '1';
+            con(Lp) <= '1';
+            ns <= address_state;
+
+        when jnz_1 =>
+            con(Cp) <= '1';
+            ns <= jnz_2;
+        when jnz_2 =>
+            if flag_z = '0' then
+                con(Emdr) <= '1';
+                con(Lp) <= '1';
+            end if;
+            ns <= address_state;
+
+        when jz_1 =>
+            con(Cp) <= '1';
+            ns <= jz_2;
+        when jz_2 =>
+            if flag_z = '1' then
+                con(Emdr) <= '1';
+                con(Lp) <= '1';
+            end if;
+            ns <= address_state;
+
+        when lda_1 =>
+            con(Cp) <= '1';
+            ns <= lda_2;
+        when lda_2 =>
+            con(Emdr) <= '1';
+            con(Lmar) <= '1';
+            ns <= lda_3;
+        when lda_3 =>
+            ns <= lda_4; -- Sleep 1 cycle
+        when lda_4 =>
+            con(Emdr) <= '1';
+            con(La) <= '1';
+            ns <= address_state;
+
         when mvia_1 =>
             con(Cp) <= '1';
             ns <= mvia_2;
@@ -796,181 +726,90 @@ begin
             con(Emdr) <= '1';
             con(La) <= '1';
             ns <= address_state;
---
---        -- ***** MVIB byte
---        when mvib_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= mvib_1;
---        when mvib_1 =>
---            con(Cp) <= '1';
---            ns <= mvib_2;
---        when mvib_2 =>
---            con(Emdr) <= '1';
---            con(Lb) <= '1';
---            ns <= address_state;
---
---        -- ***** MVIC byte
---        when mvic_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= mvic_1;
---        when mvic_1 =>
---            con(Cp) <= '1';
---            ns <= mvic_2;
---        when mvic_2 =>
---            con(Emdr) <= '1';
---            con(Lc) <= '1';
---            ns <= address_state;
---
---        -- ***** NOP
---        when nop_0 =>
---            ns <= address_state;
---            
---        -- ***** ORA B
---        when orab_0 =>
---            con(Eb) <= '1';
---            con(Lt) <= '1';
---            ns <= ora_1;
---            
---        -- ***** ORA C
---        when orac_0 =>
---            con(Ec) <= '1';
---            con(Lt) <= '1';
---            ns <= ora_1;
---            
---        when ora_1 =>
---            alu_code <= ALU_OR;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** ORI byte
---        when ori_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= ori_1;
---        when ori_1 =>
---            con(Cp) <= '1';
---            ns <= ori_2;
---        when ori_2 =>
---            con(Emdr) <= '1';
---            con(Lt) <= '1';
---            ns <= ori_3;
---        when ori_3 =>
---            alu_code <= ALU_OR;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---
---        -- ***** OUT byte
---        when out_0 =>
---            con(Ea) <= '1';
---            con(Lo) <= '1';
---            ns <= address_state;
---        
---        -- ***** RAL
---        when ral_0 =>
---            alu_code <= ALU_ROL;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            ns <= address_state;
---        
---        -- ***** RAR
---        when rar_0 =>
---            alu_code <= ALU_ROR;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            ns <= address_state;
---            
---        -- ***** RET
---        when ret_0 =>
---            alu_code <= ALU_ONES;
---            con(Eu) <= '1';
---            con(Lmar) <= '1';
---            ns <= ret_1;
---        when ret_1 =>
---            ns <= ret_2; -- Sleep 1 cycle
---        when ret_2 =>
---            con(Emdr) <= '1';
---            con(Lp) <= '1';
---            ns <= address_state;
---            
---        -- ***** STA address
---        when sta_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= sta_1;
---        when sta_1 =>
---            con(Cp) <= '1';
---            ns <= sta_2;
---        when sta_2 =>
---            con(Emdr) <= '1';
---            con(Lmar) <= '1';
---            ns <= sta_3;
---        when sta_3 =>
---            con(Ea) <= '1';
---            con(Mw) <= '1';
---            ns <= address_state;
---            
---        -- ***** SUB B
---        when subb_0 =>
---            con(Eb) <= '1';
---            con(Lt) <= '1';
---            ns <= sub_1;
---            
---        -- ***** SUB C
---        when subc_0 =>
---            con(Ec) <= '1';
---            con(Lt) <= '1';
---            ns <= sub_1;
---            
---        when sub_1 =>
---            alu_code <= ALU_SUB;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** XRA B
---        when xrab_0 =>
---            con(Eb) <= '1';
---            con(Lt) <= '1';
---            ns <= xra_1;
---            
---        -- ***** XRA C
---        when xrac_0 =>
---            con(Ec) <= '1';
---            con(Lt) <= '1';
---            ns <= xra_1;
---            
---        when xra_1 =>
---            alu_code <= ALU_XOR;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
---            
---        -- ***** XRI byte
---        when xri_0 =>
---            con(Ep) <= '1';
---            con(Lmar) <= '1';
---            ns <= xri_1;
---        when xri_1 =>
---            con(Cp) <= '1';
---            ns <= ori_2;
---        when xri_2 =>
---            con(Emdr) <= '1';
---            con(Lt) <= '1';
---            ns <= xri_3;
---        when xri_3 =>
---            alu_code <= ALU_XOR;
---            con(Eu) <= '1';
---            con(La) <= '1';
---            con(Lsz) <= '1';
---            ns <= address_state;
+
+        when mvib_1 =>
+            con(Cp) <= '1';
+            ns <= mvib_2;
+        when mvib_2 =>
+            con(Emdr) <= '1';
+            con(Lb) <= '1';
+            ns <= address_state;
+
+        when mvic_1 =>
+            con(Cp) <= '1';
+            ns <= mvic_2;
+        when mvic_2 =>
+            con(Emdr) <= '1';
+            con(Lc) <= '1';
+            ns <= address_state;
+
+        when ora_1 =>
+            alu_code <= ALU_OR;
+            con(Eu) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when ori_1 =>
+            con(Cp) <= '1';
+            ns <= ori_2;
+        when ori_2 =>
+            con(Emdr) <= '1';
+            con(Lt) <= '1';
+            ns <= ori_3;
+        when ori_3 =>
+            alu_code <= ALU_OR;
+            con(Eu) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when ret_1 =>
+            ns <= ret_2; -- Sleep 1 cycle
+        when ret_2 =>
+            con(Emdr) <= '1';
+            con(Lp) <= '1';
+            ns <= address_state;
+
+        when sta_1 =>
+            con(Cp) <= '1';
+            ns <= sta_2;
+        when sta_2 =>
+            con(Emdr) <= '1';
+            con(Lmar) <= '1';
+            ns <= sta_3;
+        when sta_3 =>
+            con(Ea) <= '1';
+            con(Mw) <= '1';
+            ns <= address_state;
+
+        when sub_1 =>
+            alu_code <= ALU_SUB;
+            con(Eu) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+  
+        when xra_1 =>
+            alu_code <= ALU_XOR;
+            con(Eu) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
+
+        when xri_1 =>
+            con(Cp) <= '1';
+            ns <= ori_2;
+        when xri_2 =>
+            con(Emdr) <= '1';
+            con(Lt) <= '1';
+            ns <= xri_3;
+        when xri_3 =>
+            alu_code <= ALU_XOR;
+            con(Eu) <= '1';
+            con(La) <= '1';
+            con(Lsz) <= '1';
+            ns <= address_state;
 
 		when others =>
 			con <= (others=>'0');
