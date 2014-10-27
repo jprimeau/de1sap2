@@ -19,6 +19,9 @@ entity sap2_top is
         write_out   : out t_wire;
         
         -- BEGIN: SIMULATION ONLY
+        load_pgm    : in t_wire;
+        pgm_select  : in t_data;
+        
         Lp_out      : out t_wire;
         Cp_out      : out t_wire;
         Ep_out      : out t_wire;
@@ -56,41 +59,43 @@ architecture behv of sap2_top is
     signal clk      : t_wire;
 
     type t_ram is array (0 to 255) of t_data;
-
-    signal ram : t_ram := (
-        x"3E",x"AB",x"76",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 08H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 10H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 18H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 20H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 28H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 30H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 38H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 40H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 48H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 50H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 58H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 60H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 70H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 78H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 80H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 90H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- F0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF"  -- F8H
-    );
+    signal ram : t_ram := (others=>x"FF");
+--    signal ram : t_ram := (
+--        x"3E",x"AB",x"32",x"0A",x"3E",x"00",x"3A",x"0A", -- 00H
+--        x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 08H
+----        x"3E",x"AB",x"76",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
+----        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 08H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 10H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 18H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 20H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 28H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 30H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 38H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 40H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 48H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 50H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 58H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 60H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 70H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 78H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 80H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 90H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A0H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A8H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B0H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B8H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C0H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C8H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D0H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D8H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E0H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E8H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- F0H
+--        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF"  -- F8H
+--    );
     
     signal cpu_data_in  : t_data;
     signal cpu_data_out : t_data;
@@ -105,6 +110,8 @@ architecture behv of sap2_top is
     signal cpu_alu      : t_data;
     signal cpu_b        : t_data;
     signal cpu_c        : t_data;
+    
+    signal ram_write    : t_wire;
     
 begin
     addr_out    <= cpu_addr;
@@ -143,11 +150,35 @@ begin
     c_out       <= cpu_c;
     -- END: SIMULATION ONLY
 
+    ram_write <= cpu_write when reset = '0' else load_pgm;
     memory:
-    process (cpu_write)
+    process (ram_write)
     begin
-        if cpu_write'event and cpu_write = '1' then
-            ram(conv_integer(cpu_addr)) <= cpu_data_out;
+        if ram_write'event and ram_write = '1' then
+            if load_pgm = '0' then
+                ram(conv_integer(cpu_addr)) <= cpu_data_out;
+            else
+                if pgm_select = x"00" then
+                    ram <= (
+                        -- 00 MVI A,ABH
+                        -- 02 HLT
+                        x"3E",x"AB",x"76",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
+                        others=>x"FF"
+                    );
+                elsif pgm_select = x"01" then
+                    ram <= (
+                        -- 00 MVI A,ABH
+                        -- 02 STA 0AH
+                        -- 04 MVI A,00H
+                        -- 06 LDA 0AH
+                        -- 08 HLT
+                        -- 09 FF
+                        x"3E",x"AB",x"32",x"0A",x"3E",x"00",x"3A",x"0A", -- 00H
+                        x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 08H
+                        others=>x"FF"
+                    ); 
+                end if;
+            end if;
         end if;
     end process memory;
     cpu_data_in <= ram(conv_integer(cpu_addr)) when cpu_read = '1' else (others => 'Z');
