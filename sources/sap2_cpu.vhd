@@ -2,12 +2,11 @@
 -- AUTHOR: Jonathan Primeau
 
 -- TODO:
---  o Implement MDR
+--  o Use 16-bit address
 --  o Implement IN byte
 --  o Implement PS/2 interface
 --  o Fix OUT byte (output selection)
 --  o Use external SRAM
---  o Use 16-bit address
 --  o Implement serial interface
 
 library ieee;
@@ -18,83 +17,29 @@ use work.sap2_pkg.all;
 
 entity sap2_cpu is
     port (
-        clock       : in std_logic;
-        reset       : in std_logic;
-
-        halt_out    : out std_logic;
-        p0_out      : out std_logic_vector(7 downto 0);
+        clock       : in t_wire;
+        reset       : in t_wire;
+        data_in     : in t_data;
+        addr_out    : out t_address;
+        data_out    : out t_data;
+        read_out    : out t_wire;
+        write_out   : out t_wire;
         
         -- BEGIN: SIMULATION ONLY
-        Lp_out      : out std_logic;
-        Cp_out      : out std_logic;
-        Ep_out      : out std_logic;
-        Lmar_out    : out std_logic;
-        Emdr_out    : out std_logic;
-        Mw_out      : out std_logic;
-        Li_out      : out std_logic;
-        La_out      : out std_logic;
-        Ea_out      : out std_logic;
-        Lt_out      : out std_logic;
-        Et_out      : out std_logic;
-        Lb_out      : out std_logic;
-        Eb_out      : out std_logic;
-        Lc_out      : out std_logic;
-        Ec_out      : out std_logic;
-        Lu_out      : out std_logic;
-        Eu_out      : out std_logic;
-        Lo_out      : out std_logic;
-        Lsz_out     : out std_logic;
-        
-        bus_out     : out std_logic_vector(7 downto 0);
-        acc_out     : out std_logic_vector(7 downto 0);
-        tmp_out     : out std_logic_vector(7 downto 0);
-        alu_out     : out std_logic_vector(7 downto 0);
-        b_out       : out std_logic_vector(7 downto 0);
-        c_out       : out std_logic_vector(7 downto 0)
+        con_out     : out t_control;
+        bus_out     : out t_bus;
+        acc_out     : out t_data;
+        tmp_out     : out t_data;
+        alu_out     : out t_data;
+        b_out       : out t_data;
+        c_out       : out t_data
         -- END: SIMULATION ONLY
     );
 end entity sap2_cpu;
 
-architecture microcoded of sap2_cpu is
+architecture behv of sap2_cpu is
 
-    signal clk  : std_logic;
-
-    type t_ram is array (0 to 255) of t_data;
-
-    signal ram : t_ram := (
-        x"3E",x"AB",x"76",x"FF",x"FF",x"FF",x"FF",x"FF", -- 00H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 08H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 10H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 18H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 20H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 28H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 30H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 38H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 40H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 48H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 50H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 58H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 60H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 68H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 70H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 78H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 80H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 88H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 90H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 98H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- A8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- B8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- C8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- D8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- E8H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- F0H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF"  -- F8H
-    );
+    signal clk      : t_wire;
 
     signal ns, ps   : t_cpu_state;
 
@@ -109,43 +54,30 @@ architecture microcoded of sap2_cpu is
     signal I_reg    : t_data;
     signal O_reg    : t_data;
     
-    signal w_bus    : t_address;
+    signal w_bus    : t_bus;
+    signal w_bus_h  : t_data;
+    signal w_bus_l  : t_data;
     
     signal op_code  : t_opcode;
     
     signal alu_code : t_alucode;
 
-    signal con      : std_logic_vector(20 downto 0) := (others => '0');
+    signal con      : t_control := (others => '0');
     
-    signal flag_z   : std_logic;
-    signal flag_s   : std_logic;
+    signal flag_z   : t_wire;
+    signal flag_s   : t_wire;
     
 begin
-
-    halt_out <= con(HALT);
-    p0_out <= O_reg;
+    w_bus_h     <= w_bus(15 downto 8);
+    w_bus_l     <= w_bus(7 downto 0);
+    
+    addr_out    <= MAR_reg;
+    data_out    <= MDR_reg;
+    read_out    <= not con(Wr);
+    write_out   <= con(Wr);
     
     -- BEGIN: SIMULATION ONLY
-    Lp_out      <= con(Lp);
-    Cp_out      <= con(Cp);
-    Ep_out      <= con(Ep);
-    Lmar_out    <= con(Lmar);
-    Emdr_out    <= con(Emdr);
-    Mw_out      <= con(Mw);
-    Li_out      <= con(Li);
-    La_out      <= con(La);
-    Ea_out      <= con(Ea);
-    Lt_out      <= con(Lt);
-    Et_out      <= con(Et);
-    Lb_out      <= con(Lb);
-    Eb_out      <= con(Eb);
-    Lc_out      <= con(Lc);
-    Ec_out      <= con(Ec);
-    Lu_out      <= con(Lu);
-    Eu_out      <= con(Eu);
-    Lo_out      <= con(Lo);
-    Lsz_out     <= con(Lsz);
-    
+    con_out     <= con;
     bus_out     <= w_bus;
     acc_out     <= ACC_reg;
     tmp_out     <= TMP_reg;
@@ -193,28 +125,20 @@ begin
         end if;
     end process MAR_register;
     
-    memory:
-    process (clk, con)
+    MDR_register:
+    process (clk, reset)
     begin
-        if clk'event and clk = '0' then
-            if con(Mw) = '1' then
-                ram(conv_integer(MAR_reg)) <= w_bus;
+        if reset = '1' then
+            MDR_reg <= (others => '0');
+        elsif clk'event and clk = '0' then
+            if con(Lmdr) = '1' then
+                MDR_reg <= w_bus_l;
+            else
+                MDR_reg <= data_in;
             end if;
         end if;
-    end process memory;
-    w_bus <= ram(conv_integer(MAR_reg)) when con(Emdr) = '1' else (others => 'Z');
-    
---    MDR_register:
---    process (clk)
---    begin
---        if reset = '1' then
---            MDR_reg <= (others => '0');
---        elsif clk'event and clk = '0' then
---            if con(Lmdr) = '1' then
---                MDR_reg <= w_bus;
---            end if;
---        end if;
---    end process MDR_register;
+    end process MDR_register;
+    w_bus_l <= MDR_reg when con(Emdr) = '1' else (others => 'Z');
     
     ACC_register:
     process (clk, reset)
@@ -223,11 +147,11 @@ begin
             ACC_reg <= (others => '0');
         elsif clk'event and clk = '1' then
             if con(La) = '1' then
-                ACC_reg <= w_bus;
+                ACC_reg <= w_bus_l;
             end if;
         end if;
     end process ACC_register;
-    w_bus <= ACC_reg when con(Ea) = '1' else (others => 'Z');
+    w_bus_l <= ACC_reg when con(Ea) = '1' else (others => 'Z');
     
     TMP_register:
     process (clk, reset)
@@ -236,11 +160,11 @@ begin
             TMP_reg <= (others => '0');
         elsif clk'event and clk = '1' then
             if con(Lt) = '1' then
-                TMP_reg <= w_bus;
+                TMP_reg <= w_bus_l;
             end if;
         end if;
     end process TMP_register;
-    w_bus <= TMP_reg when con(Et) = '1' else (others => 'Z');
+    w_bus_l <= TMP_reg when con(Et) = '1' else (others => 'Z');
     
     B_register:
     process (clk, reset)
@@ -249,11 +173,11 @@ begin
             B_reg <= (others => '0');
         elsif clk'event and clk = '1' then
             if con(Lb) = '1' then
-                B_reg <= w_bus;
+                B_reg <= w_bus_l;
             end if;
         end if;
     end process B_register;
-    w_bus <= B_reg when con(Eb) = '1' else (others => 'Z');
+    w_bus_l <= B_reg when con(Eb) = '1' else (others => 'Z');
     
     C_register:
     process (clk, reset)
@@ -262,11 +186,11 @@ begin
             C_reg <= (others => '0');
         elsif clk'event and clk = '1' then
             if con(Lc) = '1' then
-                C_reg <= w_bus;
+                C_reg <= w_bus_l;
             end if;
         end if;
     end process C_register;
-    w_bus <= C_reg when con(Ec) = '1' else (others => 'Z');
+    w_bus_l <= C_reg when con(Ec) = '1' else (others => 'Z');
     
     I_register:
     process (clk, reset)
@@ -275,11 +199,10 @@ begin
             I_reg <= (others => '0');
         elsif clk'event and clk = '1' then
             if con(Li) = '1' then
-                I_reg <= w_bus;
+                I_reg <= w_bus_l;
             end if;
         end if;
     end process I_register;
-    
     op_code <= I_reg;
 
     O_register:
@@ -289,7 +212,7 @@ begin
             O_reg <= (others => '0');
         elsif clk'event and clk = '0' then
             if con(Lo) = '1' then
-                O_reg <= w_bus;
+                O_reg <= w_bus_l;
             end if;
         end if;
     end process O_register;
@@ -303,7 +226,7 @@ begin
             ALU_reg <= (others => '0');
         elsif clk'event and clk = '1' then
             if con(Lu) = '1' then
-                a := w_bus;
+                a := w_bus_l;
                 b := TMP_reg;
                 case alu_code is
                 when ALU_NOT =>
@@ -334,7 +257,7 @@ begin
             end if;
         end if;
     end process arithmetic_logic_unit;
-    w_bus <= ALU_reg when con(Eu) = '1' else (others => 'Z');
+    w_bus_l <= ALU_reg when con(Eu) = '1' else (others => 'Z');
     
     flags:
     process (clk, con)
@@ -377,6 +300,7 @@ begin
 		when address_state =>
             con(Ep) <= '1';
             con(Lmar) <= '1';
+            con(Rd) <= '1';
 			ns <= increment_state;
             
 		when increment_state =>
@@ -409,10 +333,12 @@ begin
             when ANI =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= ani_1;
             when CALL =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= call_1;
             when CMA =>
                 alu_code <= ALU_NOT;
@@ -454,22 +380,27 @@ begin
             when JM =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= jm_1;
             when JMP =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= jmp_1;
             when JNZ =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= jnz_1;
             when JZ =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= jz_1;
             when LDA =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= lda_1;
             when MOVAB =>
                 con(Ea) <= '1';
@@ -498,14 +429,17 @@ begin
             when MVIA =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= mvia_1;
             when MVIB =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= mvib_1;
             when MVIC =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= mvic_1;
             when NOP =>
                 ns <= address_state;
@@ -520,6 +454,7 @@ begin
             when ORI =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= ori_1;
             when OUTB =>
                 con(Ea) <= '1';
@@ -539,10 +474,12 @@ begin
                 alu_code <= ALU_ONES;
                 con(Eu) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= ret_1;
             when STA =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= sta_1;
             when SUBB =>
                 con(Eb) <= '1';
@@ -563,6 +500,7 @@ begin
             when XRI =>
                 con(Ep) <= '1';
                 con(Lmar) <= '1';
+                con(Rd) <= '1';
                 ns <= xri_1;
             when others =>
                 ns <= address_state;
@@ -619,12 +557,13 @@ begin
             alu_code <= ALU_ONES;
             con(Eu) <= '1';
             con(Lmar) <= '1';
+            con(Rd) <= '1';
             ns <= call_5;
         when call_5 =>
             ns <= call_6; -- Sleep 1 cycle
         when call_6 =>
             con(Et) <= '1';
-            con(Mw) <= '1';
+            con(Wr) <= '1';
             ns <= address_state;
 
         when dcra_1 =>
@@ -711,6 +650,7 @@ begin
         when lda_2 =>
             con(Emdr) <= '1';
             con(Lmar) <= '1';
+            con(Rd) <= '1';
             ns <= lda_3;
         when lda_3 =>
             ns <= lda_4; -- Sleep 1 cycle
@@ -777,10 +717,11 @@ begin
         when sta_2 =>
             con(Emdr) <= '1';
             con(Lmar) <= '1';
+            con(Rd) <= '1';
             ns <= sta_3;
         when sta_3 =>
             con(Ea) <= '1';
-            con(Mw) <= '1';
+            con(Wr) <= '1';
             ns <= address_state;
 
         when sub_1 =>
@@ -817,4 +758,4 @@ begin
 		end case;
     end process cpu_state_machine_transitions;
 
-end architecture microcoded;
+end architecture behv;

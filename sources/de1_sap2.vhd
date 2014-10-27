@@ -152,13 +152,10 @@ begin
         end if;
     end process;
 
-    soc: entity work.sap2_cpu
-    port map (
-        clock   => cpu_clk,
-        reset   => reset,
-        
-        halt_out    => halt,
-        p0_out      => p0
-    );
+--    top : entity work.sap2_top
+--    port map (
+--        clock       => cpu_clk,
+--        reset       => reset
+--    );
 
 end architecture rtl;

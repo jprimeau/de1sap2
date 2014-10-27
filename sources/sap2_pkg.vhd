@@ -6,10 +6,13 @@ use ieee.std_logic_1164.all;
 
 package sap2_pkg is
 
-    subtype t_address is std_logic_vector(7 downto 0);
+    subtype t_wire is std_logic;
+    subtype t_bus is std_logic_vector(15 downto 0);
+    subtype t_address is std_logic_vector(15 downto 0);
     subtype t_data is std_logic_vector(7 downto 0);
-    
     subtype t_opcode is std_logic_vector(7 downto 0);
+    subtype t_control is std_logic_vector(21 downto 0);
+    subtype t_alucode is std_logic_vector(3 downto 0);
 
     -- Op code
     constant ADDB   : t_opcode := x"80";
@@ -62,111 +65,35 @@ package sap2_pkg is
     constant Lmar   : integer := 03;
     constant Lmdr   : integer := 04;
     constant Emdr   : integer := 05;
-    constant Mw     : integer := 06;
-    constant Li     : integer := 07;
-    constant La     : integer := 08;
-    constant Ea     : integer := 09;
-    constant Lt     : integer := 10;
-    constant Et     : integer := 11;
-    constant Lb     : integer := 12;
-    constant Eb     : integer := 13;
-    constant Lc     : integer := 14;
-    constant Ec     : integer := 15;
-    constant Eu     : integer := 16;
-    constant Lu     : integer := 17;
-    constant Lo     : integer := 18;
-    constant Lsz    : integer := 19;
-    constant HALT   : integer := 20;
+    constant Rd     : integer := 06;
+    constant Wr     : integer := 07;
+    constant Li     : integer := 08;
+    constant La     : integer := 09;
+    constant Ea     : integer := 10;
+    constant Lt     : integer := 11;
+    constant Et     : integer := 12;
+    constant Lb     : integer := 13;
+    constant Eb     : integer := 14;
+    constant Lc     : integer := 15;
+    constant Ec     : integer := 16;
+    constant Eu     : integer := 17;
+    constant Lu     : integer := 18;
+    constant Lo     : integer := 19;
+    constant Lsz    : integer := 20;
+    constant HALT   : integer := 21;
 
     type t_cpu_state is (
-    
-        reset_state,
-        
-        address_state,
-        
-        increment_state,
-        
-        memory_state,
-        
-        decode_instruction,
-        
-        add_1,
-        add_2,
-        
-        ana_1,
-        ana_2,
-        
-        ani_1,
-        ani_2,
-        ani_3,
-        
-        call_1,
-        call_2,
-        call_3,
-        call_4,
-        call_5,
-        call_6,
-        
-        dcra_1,
-        dcra_2,
-        
-        dcrb_1,
-        dcrb_2,
-        
-        dcrc_1,
-        dcrc_2,
-        
-        inrb_1,
-        
-        inrc_1,
-        
-        jm_1,
-        jm_2,
-        
-        jmp_1,
-        jmp_2,
-        
-        jnz_1,
-        jnz_2,
-        
-        jz_1,
-        jz_2,
-        
-        lda_1,
-        lda_2,
-        lda_3,
-        lda_4,
-        
-        mvia_1,
-        mvia_2,
-        mvib_1,
-        mvib_2,
-        mvic_1,
-        mvic_2,
-        
-        ora_1,
-        
-        ori_1,
-        ori_2,
-        ori_3,
-        
-        ret_1,
-        ret_2,
-        
-        sta_1,
-        sta_2,
-        sta_3,
-        
-        sub_1,
-        
-        xra_1,
-        
-        xri_1,
-        xri_2,
-        xri_3
+        reset_state, address_state, increment_state, memory_state, decode_instruction,
+        add_1, add_2, ana_1,ana_2, ani_1, ani_2, ani_3,
+        call_1, call_2, call_3, call_4, call_5, call_6,
+        dcra_1, dcra_2, dcrb_1, dcrb_2, dcrc_1, dcrc_2,
+        inrb_1, inrc_1, jm_1, jm_2, jmp_1, jmp_2, jnz_1, jnz_2, jz_1, jz_2,
+        lda_1, lda_2, lda_3, lda_4,
+        mvia_1, mvia_2, mvib_1, mvib_2, mvic_1, mvic_2,
+        ora_1, ori_1, ori_2, ori_3,
+        ret_1, ret_2, sta_1, sta_2, sta_3, sub_1,
+        xra_1, xri_1, xri_2, xri_3
     );
-    
-    subtype t_alucode is std_logic_vector(3 downto 0);
     
     constant ALU_NOT        : t_alucode := x"0";
     constant ALU_AND        : t_alucode := x"1";
