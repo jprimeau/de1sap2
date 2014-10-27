@@ -24,7 +24,7 @@ entity sap2_top is
         Ep_out      : out t_wire;
         Lmar_out    : out t_wire;
         Emdr_out    : out t_wire;
-        Rd_out      : out t_wire;
+        --Rd_out      : out t_wire;
         Wr_out      : out t_wire;
         Li_out      : out t_wire;
         La_out      : out t_wire;
@@ -118,7 +118,7 @@ begin
     Ep_out      <= cpu_con(Ep);
     Lmar_out    <= cpu_con(Lmar);
     Emdr_out    <= cpu_con(Emdr);
-    Rd_out      <= cpu_con(Rd);
+    --Rd_out      <= cpu_con(Rd);
     Wr_out      <= cpu_con(Wr);
     Li_out      <= cpu_con(Li);
     La_out      <= cpu_con(La);

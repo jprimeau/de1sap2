@@ -65,7 +65,7 @@ package sap2_pkg is
     constant Lmar   : integer := 03;
     constant Lmdr   : integer := 04;
     constant Emdr   : integer := 05;
-    constant Rd     : integer := 06;
+    --constant Rd     : integer := 06;
     constant Wr     : integer := 07;
     constant Li     : integer := 08;
     constant La     : integer := 09;
