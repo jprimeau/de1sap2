@@ -91,7 +91,7 @@ package sap2_pkg is
         lda_1, lda_2, lda_3, lda_4,
         mvia_1, mvia_2, mvib_1, mvib_2, mvic_1, mvic_2,
         ora_1, ori_1, ori_2, ori_3,
-        ret_1, ret_2, sta_1, sta_2, sta_3, sub_1,
+        ret_1, ret_2, sta_1, sta_2, sta_3, sta_4, sub_1,
         xra_1, xri_1, xri_2, xri_3
     );
     

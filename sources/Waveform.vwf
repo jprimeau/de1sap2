@@ -1,3 +1,4 @@
+/* Simulator = Quartus II Simulator */
 /*
 WARNING: Do NOT edit the input and output ports in this file in a text
 editor if you plan to continue editing the block that represents it in
@@ -1342,6 +1343,16 @@ SIGNAL("load_pgm")
 	PARENT = "";
 }
 
+SIGNAL("Lmdr_out")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = OUTPUT;
+	PARENT = "";
+}
+
 TRANSITION_LIST("acc_out[7]")
 {
 	NODE
@@ -2431,8 +2442,7 @@ TRANSITION_LIST("pgm_select[0]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL 0 FOR 120.0;
-		LEVEL 1 FOR 4880.0;
+		LEVEL 1 FOR 5000.0;
 	}
 }
 
@@ -2444,6 +2454,15 @@ TRANSITION_LIST("load_pgm")
 		LEVEL 0 FOR 40.0;
 		LEVEL 1 FOR 40.0;
 		LEVEL 0 FOR 4920.0;
+	}
+}
+
+TRANSITION_LIST("Lmdr_out")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL X FOR 5000.0;
 	}
 }
 
@@ -3563,7 +3582,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Emdr_out";
+	CHANNEL = "Lmdr_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 112;
@@ -3572,7 +3591,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Li_out";
+	CHANNEL = "Emdr_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 113;
@@ -3581,7 +3600,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "La_out";
+	CHANNEL = "Wr_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 114;
@@ -3590,7 +3609,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Ea_out";
+	CHANNEL = "Li_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 115;
@@ -3599,7 +3618,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Eb_out";
+	CHANNEL = "La_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 116;
@@ -3608,7 +3627,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Ec_out";
+	CHANNEL = "Ea_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 117;
@@ -3617,7 +3636,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Et_out";
+	CHANNEL = "Eb_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 118;
@@ -3626,7 +3645,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Eu_out";
+	CHANNEL = "Ec_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 119;
@@ -3635,7 +3654,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "halt_out";
+	CHANNEL = "Et_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 120;
@@ -3644,7 +3663,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Lb_out";
+	CHANNEL = "Eu_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 121;
@@ -3653,7 +3672,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Lc_out";
+	CHANNEL = "halt_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 122;
@@ -3662,7 +3681,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Lo_out";
+	CHANNEL = "Lb_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 123;
@@ -3671,7 +3690,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Lp_out";
+	CHANNEL = "Lc_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 124;
@@ -3680,7 +3699,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Lsz_out";
+	CHANNEL = "Lo_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 125;
@@ -3689,7 +3708,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Lt_out";
+	CHANNEL = "Lp_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 126;
@@ -3698,7 +3717,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Lu_out";
+	CHANNEL = "Lsz_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 127;
@@ -3707,7 +3726,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "read_out";
+	CHANNEL = "Lt_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 128;
@@ -3716,7 +3735,7 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "Wr_out";
+	CHANNEL = "Lu_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 129;
@@ -3725,10 +3744,19 @@ DISPLAY_LINE
 
 DISPLAY_LINE
 {
-	CHANNEL = "write_out";
+	CHANNEL = "read_out";
 	EXPAND_STATUS = COLLAPSED;
 	RADIX = Binary;
 	TREE_INDEX = 130;
+	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "write_out";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Binary;
+	TREE_INDEX = 131;
 	TREE_LEVEL = 0;
 }
 

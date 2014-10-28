@@ -634,9 +634,9 @@ begin
         when lda_2 =>
             con(Emdr) <= '1';
             con(Lmar) <= '1';
-            ns <= lda_3;
-        when lda_3 =>
-            ns <= lda_4; -- Sleep 1 cycle
+            ns <= lda_4;
+--        when lda_3 =>
+--            ns <= lda_4; -- Sleep 1 cycle
         when lda_4 =>
             con(Emdr) <= '1';
             con(La) <= '1';
@@ -703,6 +703,9 @@ begin
             ns <= sta_3;
         when sta_3 =>
             con(Ea) <= '1';
+            con(Lmdr) <= '1';
+            ns <= sta_4;
+        when sta_4 =>
             con(Wr) <= '1';
             ns <= address_state;
 
