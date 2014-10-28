@@ -139,6 +139,7 @@ begin
         end if;
     end process MDR_register;
     w_bus_l <= MDR_reg when con(Emdr) = '1' else (others => 'Z');
+    w_bus_h <= MDR_reg when con(EmdrH) = '1' else (others => 'Z');
     
     ACC_register:
     process (clk, reset)
@@ -605,6 +606,14 @@ begin
             ns <= jmp_2;
         when jmp_2 =>
             con(Emdr) <= '1';
+            con(Lt) <= '1';
+            ns <= jmp_3;
+        when jmp_3 =>
+            con(Cp) <= '1';
+            ns <= jmp_4;
+        when jmp_4 =>
+            con(EmdrH) <= '1';
+            con(Et) <= '1';
             con(Lp) <= '1';
             ns <= address_state;
 
@@ -633,11 +642,17 @@ begin
             ns <= lda_2;
         when lda_2 =>
             con(Emdr) <= '1';
-            con(Lmar) <= '1';
+            con(Lt) <= '1';
+            ns <= lda_3;
+        when lda_3 =>
+            con(Cp) <= '1';
             ns <= lda_4;
---        when lda_3 =>
---            ns <= lda_4; -- Sleep 1 cycle
         when lda_4 =>
+            con(EmdrH) <= '1';
+            con(Et) <= '1';
+            con(Lmar) <= '1';
+            ns <= lda_5;
+        when lda_5 =>
             con(Emdr) <= '1';
             con(La) <= '1';
             ns <= address_state;
@@ -699,13 +714,21 @@ begin
             ns <= sta_2;
         when sta_2 =>
             con(Emdr) <= '1';
-            con(Lmar) <= '1';
+            con(Lt) <= '1';
             ns <= sta_3;
         when sta_3 =>
-            con(Ea) <= '1';
-            con(Lmdr) <= '1';
+            con(Cp) <= '1';
             ns <= sta_4;
         when sta_4 =>
+            con(EmdrH) <= '1';
+            con(Et) <= '1';
+            con(Lmar) <= '1';
+            ns <= sta_5;
+        when sta_5 =>
+            con(Ea) <= '1';
+            con(Lmdr) <= '1';
+            ns <= sta_6;
+        when sta_6 =>
             con(Wr) <= '1';
             ns <= address_state;
 

@@ -65,7 +65,7 @@ package sap2_pkg is
     constant Lmar   : integer := 03;
     constant Lmdr   : integer := 04;
     constant Emdr   : integer := 05;
-    --constant Rd     : integer := 06;
+    constant EmdrH  : integer := 06;
     constant Wr     : integer := 07;
     constant Li     : integer := 08;
     constant La     : integer := 09;
@@ -87,11 +87,11 @@ package sap2_pkg is
         add_1, add_2, ana_1,ana_2, ani_1, ani_2, ani_3,
         call_1, call_2, call_3, call_4, call_5, call_6,
         dcra_1, dcra_2, dcrb_1, dcrb_2, dcrc_1, dcrc_2,
-        inrb_1, inrc_1, jm_1, jm_2, jmp_1, jmp_2, jnz_1, jnz_2, jz_1, jz_2,
-        lda_1, lda_2, lda_3, lda_4,
+        inrb_1, inrc_1, jm_1, jm_2, jmp_1, jmp_2, jmp_3, jmp_4, jnz_1, jnz_2, jz_1, jz_2,
+        lda_1, lda_2, lda_3, lda_4, lda_5,
         mvia_1, mvia_2, mvib_1, mvib_2, mvic_1, mvic_2,
         ora_1, ori_1, ori_2, ori_3,
-        ret_1, ret_2, sta_1, sta_2, sta_3, sta_4, sub_1,
+        ret_1, ret_2, sta_1, sta_2, sta_3, sta_4, sta_5, sta_6, sub_1,
         xra_1, xri_1, xri_2, xri_3
     );
     

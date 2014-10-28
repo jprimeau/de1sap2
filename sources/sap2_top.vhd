@@ -61,8 +61,8 @@ architecture behv of sap2_top is
 
     type t_ram is array (0 to 255) of t_data;
     signal ram : t_ram := (
-        x"3E",x"AB",x"32",x"0A",x"3E",x"00",x"3A",x"0A", -- 00H
-        x"76",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 08H
+        x"3E",x"AB",x"32",x"0C",x"00",x"3E",x"00",x"3A", -- 00H
+        x"0C",x"00",x"76",x"FF",x"FF",x"FF",x"FF",x"FF", -- 08H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 10H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 18H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 20H
