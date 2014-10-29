@@ -55,8 +55,8 @@ architecture behv of sap2_cpu is
     signal O_reg    : t_data;
     
     signal w_bus    : t_bus;
-    signal w_bus_h  : t_data;
-    signal w_bus_l  : t_data;
+    alias  w_bus_h  is w_bus(15 downto 8);
+    alias  w_bus_l  is w_bus(7 downto 0);
     
     signal op_code  : t_opcode;
     
@@ -68,9 +68,6 @@ architecture behv of sap2_cpu is
     signal flag_s   : t_wire;
     
 begin
-    w_bus_h     <= w_bus(15 downto 8);
-    w_bus_l     <= w_bus(7 downto 0);
-    
     addr_out    <= MAR_reg;
     data_out    <= MDR_reg;
     read_out    <= not con(Wr);
@@ -82,6 +79,8 @@ begin
     acc_out     <= ACC_reg;
     tmp_out     <= TMP_reg;
     alu_out     <= ALU_reg;
+    b_out       <= b_reg;
+    c_out       <= c_reg;
     -- END: SIMULATION ONLY
 
     run:
@@ -130,7 +129,7 @@ begin
     begin
         if reset = '1' then
             MDR_reg <= (others => '0');
-        elsif clk'event and clk = '0' then
+        elsif clk'event and clk = '1' then
             if con(Lmdr) = '1' then
                 MDR_reg <= w_bus_l;
             else
@@ -590,13 +589,21 @@ begin
             con(La) <= '1';
             con(Lsz) <= '1';
             ns <= address_state;
-
+          
         when jm_1 =>
             con(Cp) <= '1';
             ns <= jm_2;
         when jm_2 =>
+            con(Emdr) <= '1';
+            con(Lt) <= '1';
+            ns <= jm_3;
+        when jm_3 =>
+            con(Cp) <= '1';
+            ns <= jm_4;
+        when jm_4 =>
             if flag_s = '1' then
-                con(Emdr) <= '1';
+                con(EmdrH) <= '1';
+                con(Et) <= '1';
                 con(Lp) <= '1';
             end if;
             ns <= address_state;
@@ -616,13 +623,21 @@ begin
             con(Et) <= '1';
             con(Lp) <= '1';
             ns <= address_state;
-
+            
         when jnz_1 =>
             con(Cp) <= '1';
             ns <= jnz_2;
         when jnz_2 =>
+            con(Emdr) <= '1';
+            con(Lt) <= '1';
+            ns <= jnz_3;
+        when jnz_3 =>
+            con(Cp) <= '1';
+            ns <= jnz_4;
+        when jnz_4 =>
             if flag_z = '0' then
-                con(Emdr) <= '1';
+                con(EmdrH) <= '1';
+                con(Et) <= '1';
                 con(Lp) <= '1';
             end if;
             ns <= address_state;
@@ -631,8 +646,16 @@ begin
             con(Cp) <= '1';
             ns <= jz_2;
         when jz_2 =>
+            con(Emdr) <= '1';
+            con(Lt) <= '1';
+            ns <= jz_3;
+        when jz_3 =>
+            con(Cp) <= '1';
+            ns <= jz_4;
+        when jz_4 =>
             if flag_z = '1' then
-                con(Emdr) <= '1';
+                con(EmdrH) <= '1';
+                con(Et) <= '1';
                 con(Lp) <= '1';
             end if;
             ns <= address_state;
@@ -653,6 +676,8 @@ begin
             con(Lmar) <= '1';
             ns <= lda_5;
         when lda_5 =>
+            ns <= lda_6; -- SLEEP
+        when lda_6 =>
             con(Emdr) <= '1';
             con(La) <= '1';
             ns <= address_state;

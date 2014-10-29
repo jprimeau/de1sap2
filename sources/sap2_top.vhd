@@ -28,7 +28,7 @@ entity sap2_top is
         Lmar_out    : out t_wire;
         Lmdr_out    : out t_wire;
         Emdr_out    : out t_wire;
-        --Rd_out      : out t_wire;
+        EmdrH_out   : out t_wire;
         Wr_out      : out t_wire;
         Li_out      : out t_wire;
         La_out      : out t_wire;
@@ -62,8 +62,8 @@ architecture behv of sap2_top is
     type t_ram is array (0 to 255) of t_data;
     signal ram : t_ram := (
         x"3E",x"AB",x"32",x"0C",x"00",x"3E",x"00",x"3A", -- 00H
-        x"0C",x"00",x"76",x"FF",x"FF",x"FF",x"FF",x"FF", -- 08H
-        x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 10H
+        x"0C",x"00",x"C3",x"10",x"00",x"FF",x"FF",x"FF", -- 08H
+        x"3E",x"BC",x"76",x"FF",x"FF",x"FF",x"FF",x"FF", -- 10H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 18H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 20H
         x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF",x"FF", -- 28H
@@ -122,7 +122,7 @@ begin
     Lmar_out    <= cpu_con(Lmar);
     Lmdr_out    <= cpu_con(Lmdr);
     Emdr_out    <= cpu_con(Emdr);
-    --Rd_out      <= cpu_con(Rd);
+    EmdrH_out   <= cpu_con(EmdrH);
     Wr_out      <= cpu_con(Wr);
     Li_out      <= cpu_con(Li);
     La_out      <= cpu_con(La);
